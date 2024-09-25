@@ -1,0 +1,13 @@
+{
+  "files": {
+    "main.css": "/cross-connect/static/css/main.9039f116.css",
+    "main.js": "/cross-connect/static/js/main.b410f3f9.js",
+    "index.html": "/cross-connect/index.html",
+    "main.9039f116.css.map": "/cross-connect/static/css/main.9039f116.css.map",
+    "main.b410f3f9.js.map": "/cross-connect/static/js/main.b410f3f9.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.9039f116.css",
+    "static/js/main.b410f3f9.js"
+  ]
+}
