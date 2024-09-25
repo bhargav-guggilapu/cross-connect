@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Route, Routes } from "react-router-dom";
+import { Route, Routes, Navigate } from "react-router-dom";
 import Sidebar from "./components/Sidebar/Sidebar";
 import Dashboard from "./components/Dashboard/Dashboard";
 import HeadBar from "./components/HeadBar/HeadBar";
@@ -60,14 +60,11 @@ export default function App() {
               path="/account"
               element={<PlaceholderComponent title="Account" />}
             />
+            <Route path="*" element={<Navigate to="/dashboard" replace />} />
           </Routes>
         </div>
       </div>
-      <Snackbar
-        open={open}
-        autoHideDuration={6000}
-        message="Note archived"
-      />
+      <Snackbar open={open} autoHideDuration={6000} message="Note archived" />
     </div>
   );
 }
