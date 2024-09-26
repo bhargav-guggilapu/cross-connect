@@ -10,8 +10,6 @@ const agentData = {
   city: "Anytown",
   state: "CA",
   zip: "12345",
-  ordersPlaced: "42",
-  rating: "4.8",
 };
 
 const tableData = {
@@ -193,49 +191,6 @@ export default function Dashboard() {
               </div>
             </div>
           ))}
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-          <div>
-            <label
-              className="text-sm text-gray-600 mb-1"
-              style={{ fontFamily: "Poppins, sans-serif" }}
-            >
-              Orders Placed
-            </label>
-            <div className="relative">
-              <input
-                type="text"
-                className="w-full p-2 pr-8 border border-orange-200 rounded focus:outline-none focus:ring-2 focus:ring-orange-300 bg-gray-100"
-                value={agentData.ordersPlaced}
-                readOnly
-              />
-              <ContentCopy
-                className="absolute right-2 top-1/2 transform -translate-y-1/2 w-5 h-5 text-orange-400 cursor-pointer hover:text-orange-600"
-                onClick={() => handleCopyClick(agentData.ordersPlaced)}
-              />
-            </div>
-          </div>
-          <div>
-            <label
-              className="text-sm text-gray-600 mb-1"
-              style={{ fontFamily: "Poppins, sans-serif" }}
-            >
-              Rating
-            </label>
-            <div className="relative">
-              <input
-                type="text"
-                className="w-full p-2 pr-8 border border-orange-200 rounded focus:outline-none focus:ring-2 focus:ring-orange-300 bg-gray-100"
-                value={agentData.rating}
-                readOnly
-              />
-              <ContentCopy
-                className="absolute right-2 top-1/2 transform -translate-y-1/2 w-5 h-5 text-orange-400 cursor-pointer hover:text-orange-600"
-                onClick={() => handleCopyClick(agentData.rating)}
-              />
-            </div>
-          </div>
         </div>
       </div>
 

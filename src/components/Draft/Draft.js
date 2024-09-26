@@ -90,7 +90,10 @@ export default function Draft() {
   return (
     <div className="p-6 bg-orange-50">
       <div className="mb-6 flex justify-between items-center">
-        <h1 className="text-2xl font-bold text-orange-800 font-rajdhani">
+        <h1
+          className="text-2xl font-bold mb-4 text-orange-800"
+          style={{ fontFamily: "Rajdhani, sans-serif" }}
+        >
           Your Draft
         </h1>
         <div className="flex space-x-4">

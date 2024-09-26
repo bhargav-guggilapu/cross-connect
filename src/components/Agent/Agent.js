@@ -60,9 +60,12 @@ export default function Agent() {
       <div className="container mx-auto py-8 px-4 ">
         <div className="p-6 bg-white  rounded-lg shadow-md border border-orange-200">
           <div className="flex justify-between items-center mb-6">
-            <h2 className="text-3xl font-bold text-orange-800 font-rajdhani">
+            <h1
+              className="text-2xl font-bold mb-4 text-orange-800"
+              style={{ fontFamily: "Rajdhani, sans-serif" }}
+            >
               Agent Details
-            </h2>
+            </h1>
             <div className="space-x-4">
               <button className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition duration-300">
                 Chat
