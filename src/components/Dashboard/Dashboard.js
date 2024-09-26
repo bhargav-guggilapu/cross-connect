@@ -14,55 +14,50 @@ const agentData = {
   rating: "4.8",
 };
 
+const tableData = {
+  Delivered: [
+    { id: 123, agent: "TEST 1", zipCode: "78412", status: "Delivered" },
+    { id: 124, agent: "TEST 4", zipCode: "90001", status: "Delivered" },
+    { id: 125, agent: "TEST 5", zipCode: "60601", status: "Delivered" },
+  ],
+  "In Progress": [
+    {
+      orderId: "IP001",
+      customer: "John Doe",
+      product: "Widget A",
+      estimatedDelivery: "2023-06-15",
+    },
+    {
+      orderId: "IP002",
+      customer: "Jane Smith",
+      product: "Gadget B",
+      estimatedDelivery: "2023-06-18",
+    },
+    {
+      orderId: "IP003",
+      customer: "Bob Johnson",
+      product: "Tool C",
+      estimatedDelivery: "2023-06-20",
+    },
+  ],
+  Draft: [
+    {
+      draftId: "D001",
+      title: "New Product Launch",
+      lastEdited: "2023-06-01",
+      author: "Marketing Team",
+    },
+    {
+      draftId: "D002",
+      title: "Customer Survey",
+      lastEdited: "2023-06-03",
+      author: "Research Dept",
+    }
+  ],
+};
+
 export default function Dashboard() {
   const [activeTab, setActiveTab] = useState("Delivered");
-  const [tableData, setTableData] = useState({
-    Delivered: [
-      { id: 123, agent: "TEST 1", zipCode: "78412", status: "Delivered" },
-      { id: 124, agent: "TEST 4", zipCode: "90001", status: "Delivered" },
-      { id: 125, agent: "TEST 5", zipCode: "60601", status: "Delivered" },
-    ],
-    "In Progress": [
-      {
-        orderId: "IP001",
-        customer: "John Doe",
-        product: "Widget A",
-        estimatedDelivery: "2023-06-15",
-      },
-      {
-        orderId: "IP002",
-        customer: "Jane Smith",
-        product: "Gadget B",
-        estimatedDelivery: "2023-06-18",
-      },
-      {
-        orderId: "IP003",
-        customer: "Bob Johnson",
-        product: "Tool C",
-        estimatedDelivery: "2023-06-20",
-      },
-    ],
-    Draft: [
-      {
-        draftId: "D001",
-        title: "New Product Launch",
-        lastEdited: "2023-06-01",
-        author: "Marketing Team",
-      },
-      {
-        draftId: "D002",
-        title: "Customer Survey",
-        lastEdited: "2023-06-03",
-        author: "Research Dept",
-      },
-      {
-        draftId: "D003",
-        title: "Q3 Strategy",
-        lastEdited: "2023-06-05",
-        author: "Executive Team",
-      },
-    ],
-  });
 
   const handleCopyClick = (text) => {
     navigator.clipboard.writeText(text).then(() => {
