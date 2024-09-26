@@ -52,7 +52,7 @@ const tableData = {
       title: "Customer Survey",
       lastEdited: "2023-06-03",
       author: "Research Dept",
-    }
+    },
   ],
 };
 
@@ -72,17 +72,11 @@ export default function Dashboard() {
   const renderTableHeaders = () => {
     switch (activeTab) {
       case "Delivered":
-        return ["Order Id", "Agent", "Zip Code", "Action"];
+        return ["Order Id", "Agent", "Zip Code", ""];
       case "In Progress":
-        return [
-          "Order Id",
-          "Customer",
-          "Product",
-          "Estimated Delivery",
-          "Action",
-        ];
+        return ["Order Id", "Customer", "Product", "Estimated Delivery", ""];
       case "Draft":
-        return ["Draft Id", "Title", "Last Edited", "Author", "Action"];
+        return ["Draft Id", "Title", "Last Edited", "Author", ""];
       default:
         return [];
     }
