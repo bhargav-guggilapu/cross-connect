@@ -5,6 +5,7 @@ import Dashboard from "./components/Dashboard/Dashboard";
 import HeadBar from "./components/HeadBar/HeadBar";
 import { Snackbar } from "@mui/material";
 import Agent from "./components/Agent/Agent";
+import Draft from "./components/Draft/Draft";
 
 function PlaceholderComponent({ title }) {
   return (
@@ -43,7 +44,7 @@ export default function App() {
             />
             <Route
               path="/draft"
-              element={<PlaceholderComponent title="Draft" />}
+              element={<Draft />}
             />
             <Route
               path="/in-progress"
