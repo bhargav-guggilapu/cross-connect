@@ -1,13 +1,14 @@
 import React, { useState } from "react";
 import { Route, Routes, Navigate } from "react-router-dom";
-import Sidebar from "./components/Sidebar/Sidebar";
-import Dashboard from "./components/Dashboard/Dashboard";
-import HeadBar from "./components/HeadBar/HeadBar";
+import Sidebar from "./components/Sidebar";
+import Dashboard from "./components/Dashboard";
+import HeadBar from "./components/HeadBar";
 import { Snackbar } from "@mui/material";
-import Agent from "./components/Agent/Agent";
-import Draft from "./components/Draft/Draft";
-import ProhibitedItems from "./components/Prohibited Items/ProhibitedItems";
-import Delivered from "./components/Delivered/Delivered";
+import Agent from "./components/Agent";
+import Draft from "./components/Draft";
+import ProhibitedItems from "./components/ProhibitedItems";
+import Delivered from "./components/Delivered";
+import Account from "./components/Account";
 
 function PlaceholderComponent({ title }) {
   return (
@@ -48,10 +49,7 @@ export default function App() {
             />
             <Route path="/delivered" element={<Delivered />} />
             <Route path="/prohibited-items" element={<ProhibitedItems />} />
-            <Route
-              path="/account"
-              element={<PlaceholderComponent title="Account" />}
-            />
+            <Route path="/account" element={<Account />} />
             <Route path="*" element={<Navigate to="/dashboard" replace />} />
           </Routes>
         </div>

@@ -6,6 +6,7 @@ import {
   DialogActions,
   Button,
 } from "@mui/material";
+import { Inventory } from "@mui/icons-material";
 
 const deliveries = [
   {
@@ -119,9 +120,9 @@ export default function Delivered() {
                 <td className="p-3">
                   <button
                     onClick={() => openDialog(item.items)}
-                    className="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 transition duration-300"
+                    className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition duration-300 flex items-center"
                   >
-                    Items
+                    <Inventory className="mr-2" /> Items
                   </button>
                 </td>
               </tr>

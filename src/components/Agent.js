@@ -170,7 +170,7 @@ export default function Agent() {
             </div>
             <button
               onClick={() => handleConnect(agent)}
-              className="px-3 py-1 bg-green-500 text-white rounded hover:bg-green-600 transition duration-300 flex items-center"
+              className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition duration-300 flex items-center"
             >
               <ConnectWithoutContact className="mr-2" /> Connect
             </button>
