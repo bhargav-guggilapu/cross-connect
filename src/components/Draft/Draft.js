@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import EditIcon from "@mui/icons-material/Edit";
+import { Add, AddShoppingCart, Clear, Edit } from "@mui/icons-material";
 
 export default function Draft() {
   const [draftItems, setDraftItems] = useState([]);
@@ -91,20 +92,20 @@ export default function Draft() {
     <div className="p-6 bg-orange-50">
       <div className="mb-6 flex justify-between items-center">
         <h1
-          className="text-2xl font-bold mb-4 text-orange-800"
+          className="text-2xl font-bold text-orange-800"
           style={{ fontFamily: "Rajdhani, sans-serif" }}
         >
           Your Draft
         </h1>
         <div className="flex space-x-4">
-          <button className="px-6 py-2 bg-green-500 text-white rounded-md font-semibold">
-            Place Order
+          <button className="px-6 py-2 bg-green-500 text-white rounded-md font-semibold hover:bg-gree-600 transition duration-300 flex items-center">
+            <AddShoppingCart className="mr-2" /> Place Order
           </button>
           <button
-            className="px-6 py-2 bg-red-100 text-red-800 rounded-md font-semibold flex items-center"
+            className="px-6 py-2 bg-red-100 text-red-800 rounded-md font-semibold hover:bg-red-200 transition duration-300 flex items-center"
             onClick={clearTable}
           >
-            Clear All
+            <Clear className="mr-2" /> Clear All
           </button>
         </div>
       </div>
@@ -124,7 +125,7 @@ export default function Draft() {
             {draftItems.map((item, index) => (
               <tr
                 key={item.id}
-                className={index % 2 === 0 ? "bg-orange-50" : ""}
+                className={index % 2 === 0 ? "bg-orange-100" : ""}
               >
                 <td className="p-3">{item.name}</td>
                 <td className="p-3">{item.description}</td>
@@ -132,7 +133,7 @@ export default function Draft() {
                 <td className="p-3">{item.storeName}</td>
                 <td className="p-3">
                   <button
-                    className="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 transition duration-300 mr-2"
+                    className="px-3 py-1 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition duration-300 mr-2"
                     onClick={() => editItem(item.id)}
                   >
                     <EditIcon className="w-4 h-4" />
@@ -207,12 +208,17 @@ export default function Draft() {
             onChange={handleInputChange}
           />
         </div>
-        <div className="flex flex-col h-[74px]">
+        <div className="flex flex-row h-[74px] justify-center">
           <button
-            className="w-full h-[42px] px-4 bg-blue-500 text-white hover:bg-blue-600 rounded-md transition duration-300"
+            className="max-w-fit h-[42px] px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition duration-300 flex items-center"
             onClick={addItem}
           >
-            {editingId !== null ? "Update Item" : "Add Item"}
+            {editingId == null ? (
+              <Add className="mr-2" />
+            ) : (
+              <Edit className="mr-2" />
+            )}
+            {editingId == null ? "Add Item" : "Update Item"}
           </button>
         </div>
       </div>

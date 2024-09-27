@@ -1,3 +1,4 @@
+import { Chat, ConnectWithoutContact, SwapHoriz } from "@mui/icons-material";
 import { Avatar } from "@mui/material";
 import React, { useState } from "react";
 
@@ -61,20 +62,20 @@ export default function Agent() {
         <div className="p-6 bg-white  rounded-lg shadow-md border border-orange-200">
           <div className="flex justify-between items-center mb-6">
             <h1
-              className="text-2xl font-bold mb-4 text-orange-800"
+              className="text-2xl font-bold text-orange-800"
               style={{ fontFamily: "Rajdhani, sans-serif" }}
             >
               Agent Details
             </h1>
-            <div className="space-x-4">
-              <button className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition duration-300">
-                Chat
+            <div className="space-x-4 flex items-center">
+              <button className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition duration-300 flex items-center">
+                <Chat className="mr-2" /> Chat
               </button>
               <button
                 onClick={handleChangeAgent}
-                className="px-4 py-2 bg-orange-500 text-white rounded-md hover:bg-orange-600 transition duration-300"
+                className="px-4 py-2 bg-orange-500 text-white rounded-md hover:bg-orange-600 transition duration-300 flex items-center"
               >
-                Change Agent
+                <SwapHoriz className="mr-2" /> Change Agent
               </button>
             </div>
           </div>
@@ -169,9 +170,9 @@ export default function Agent() {
             </div>
             <button
               onClick={() => handleConnect(agent)}
-              className="px-3 py-1 bg-green-500 text-white rounded hover:bg-green-600 transition duration-300"
+              className="px-3 py-1 bg-green-500 text-white rounded hover:bg-green-600 transition duration-300 flex items-center"
             >
-              Connect
+              <ConnectWithoutContact className="mr-2" /> Connect
             </button>
           </div>
         ))}

@@ -6,6 +6,8 @@ import HeadBar from "./components/HeadBar/HeadBar";
 import { Snackbar } from "@mui/material";
 import Agent from "./components/Agent/Agent";
 import Draft from "./components/Draft/Draft";
+import ProhibitedItems from "./components/Prohibited Items/ProhibitedItems";
+import Delivered from "./components/Delivered/Delivered";
 
 function PlaceholderComponent({ title }) {
   return (
@@ -38,26 +40,14 @@ export default function App() {
         <div className="flex-1 overflow-auto">
           <Routes>
             <Route path="/dashboard" element={<Dashboard />} />
-            <Route
-              path="/agent"
-              element={<Agent />}
-            />
-            <Route
-              path="/draft"
-              element={<Draft />}
-            />
+            <Route path="/agent" element={<Agent />} />
+            <Route path="/draft" element={<Draft />} />
             <Route
               path="/in-progress"
               element={<PlaceholderComponent title="In Progress" />}
             />
-            <Route
-              path="/delivered"
-              element={<PlaceholderComponent title="Delivered" />}
-            />
-            <Route
-              path="/prohibited-items"
-              element={<PlaceholderComponent title="Prohibited Items" />}
-            />
+            <Route path="/delivered" element={<Delivered />} />
+            <Route path="/prohibited-items" element={<ProhibitedItems />} />
             <Route
               path="/account"
               element={<PlaceholderComponent title="Account" />}
