@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { ContentCopy } from "@mui/icons-material";
+import React, { useEffect, useState } from "react";
+import { Chat, ContentCopy, Edit, TrackChanges } from "@mui/icons-material";
 
 // Random agent data
 const agentData = {
@@ -56,6 +56,15 @@ const tableData = {
 
 export default function Dashboard() {
   const [activeTab, setActiveTab] = useState("Delivered");
+  const [time, setTime] = useState(new Date());
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setTime(new Date());
+    }, 60000);
+
+    return () => clearInterval(interval);
+  }, []);
 
   const handleCopyClick = (text) => {
     navigator.clipboard.writeText(text).then(() => {
@@ -123,6 +132,18 @@ export default function Dashboard() {
       .join("");
   };
 
+  const getIndianTime = (time) => {
+    return time
+      .toLocaleTimeString("en-IN", {
+        timeZone: "Asia/Kolkata",
+        hour12: true,
+        hour: "numeric",
+        minute: "numeric",
+      })
+      .replace("am", "AM")
+      .replace("pm", "PM");
+  };
+
   return (
     <div className="flex-1 overflow-auto p-6 bg-orange-50">
       <div className="mb-6 p-6 bg-white rounded-lg shadow-md border border-orange-200">
@@ -135,10 +156,10 @@ export default function Dashboard() {
           </h2>
           <div className="flex items-center space-x-4">
             <span className="text-sm text-gray-600">
-              Local time: {new Date().toLocaleTimeString()}
+              Local time: {getIndianTime(time)}
             </span>
-            <button className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition duration-300">
-              Chat
+            <button className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition duration-300 flex items-center">
+              <Chat className="mr-2" /> Chat
             </button>
           </div>
         </div>
@@ -232,12 +253,17 @@ export default function Dashboard() {
               {tableData[activeTab].map((item, index) => (
                 <tr
                   key={index}
-                  className={index % 2 === 0 ? "bg-orange-50" : ""}
+                  className={index % 2 === 0 ? "bg-orange-100" : ""}
                 >
                   {renderTableRow(item)}
                   <td className="p-3">
-                    <button className="px-3 py-1 bg-green-500 text-white rounded hover:bg-green-600 transition duration-300">
-                      {activeTab === "Draft" ? "Edit" : "Track Order"}
+                    <button className="px-3 py-1 bg-green-500 text-white rounded hover:bg-green-600 transition duration-300 flex items-center">
+                      {activeTab === "Draft" ? (
+                        <Edit className="mr-2" />
+                      ) : (
+                        <TrackChanges className="mr-2" />
+                      )}{" "}
+                      {activeTab === "Draft" ? "Edit" : "Track Order"}{" "}
                     </button>
                   </td>
                 </tr>
