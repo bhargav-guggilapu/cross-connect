@@ -8,6 +8,7 @@ import Agent from "./components/Agent/Agent";
 import Draft from "./components/Draft/Draft";
 import ProhibitedItems from "./components/Prohibited Items/ProhibitedItems";
 import Delivered from "./components/Delivered/Delivered";
+import Account from "./components/Account/Account";
 
 function PlaceholderComponent({ title }) {
   return (
@@ -48,10 +49,7 @@ export default function App() {
             />
             <Route path="/delivered" element={<Delivered />} />
             <Route path="/prohibited-items" element={<ProhibitedItems />} />
-            <Route
-              path="/account"
-              element={<PlaceholderComponent title="Account" />}
-            />
+            <Route path="/account" element={<Account />} />
             <Route path="*" element={<Navigate to="/dashboard" replace />} />
           </Routes>
         </div>

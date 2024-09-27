@@ -4,7 +4,22 @@ import EditIcon from "@mui/icons-material/Edit";
 import { Add, AddShoppingCart, Clear, Edit } from "@mui/icons-material";
 
 export default function Draft() {
-  const [draftItems, setDraftItems] = useState([]);
+  const [draftItems, setDraftItems] = useState([
+    {
+      id: 1,
+      name: "T-shirt",
+      description: "Cotton, size L, white",
+      quantity: 3,
+      storeName: "H&M",
+    },
+    {
+      id: 2,
+      name: "Jeans",
+      description: "Denim, size 32, slim fit",
+      quantity: 1,
+      storeName: "Levi's",
+    },
+  ]);
   const [newItem, setNewItem] = useState({
     name: "",
     description: "",
@@ -98,11 +113,11 @@ export default function Draft() {
           Your Draft
         </h1>
         <div className="flex space-x-4">
-          <button className="px-6 py-2 bg-green-500 text-white rounded-md font-semibold hover:bg-gree-600 transition duration-300 flex items-center">
+          <button className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition duration-300 flex items-center">
             <AddShoppingCart className="mr-2" /> Place Order
           </button>
           <button
-            className="px-6 py-2 bg-red-100 text-red-800 rounded-md font-semibold hover:bg-red-200 transition duration-300 flex items-center"
+            className="px-4 py-2 bg-red-100 text-red-800 rounded-md font-semibold hover:bg-red-200 transition duration-300 flex items-center"
             onClick={clearTable}
           >
             <Clear className="mr-2" /> Clear All
@@ -133,7 +148,7 @@ export default function Draft() {
                 <td className="p-3">{item.storeName}</td>
                 <td className="p-3">
                   <button
-                    className="px-3 py-1 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition duration-300 mr-2"
+                    className="px-4 py-2 bg-orange-500 text-white rounded-md hover:bg-orange-600 transition duration-300 mr-2"
                     onClick={() => editItem(item.id)}
                   >
                     <EditIcon className="w-4 h-4" />
@@ -151,7 +166,7 @@ export default function Draft() {
         </table>
       </div>
 
-      <div className="mt-4 grid grid-cols-5 gap-4">
+      <div className="mt-8 grid grid-cols-5 gap-4">
         <div className="flex flex-col h-[74px]">
           <input
             type="text"
@@ -161,7 +176,7 @@ export default function Draft() {
               touched.name && errors.name
                 ? "border-red-500"
                 : "border-orange-200"
-            } rounded focus:outline-none focus:ring-2 focus:ring-orange-300 bg-gray-100`}
+            } rounded focus:outline-none focus:ring-2 focus:ring-orange-300`}
             value={newItem.name}
             onChange={handleInputChange}
             onBlur={handleBlur}
@@ -174,7 +189,7 @@ export default function Draft() {
           <textarea
             name="description"
             placeholder="Description"
-            className="w-full p-2 pr-8 border border-orange-200 rounded focus:outline-none focus:ring-2 focus:ring-orange-300 bg-gray-100 resize-y"
+            className="w-full p-2 pr-8 border border-orange-200 rounded focus:outline-none focus:ring-2 focus:ring-orange-300 resize-y"
             value={newItem.description}
             onChange={handleInputChange}
             rows={1}
@@ -189,7 +204,7 @@ export default function Draft() {
               touched.quantity && errors.quantity
                 ? "border-red-500"
                 : "border-orange-200"
-            } rounded focus:outline-none focus:ring-2 focus:ring-orange-300 bg-gray-100`}
+            } rounded focus:outline-none focus:ring-2 focus:ring-orange-300`}
             value={newItem.quantity}
             onChange={handleInputChange}
             onBlur={handleBlur}
@@ -203,14 +218,14 @@ export default function Draft() {
             type="text"
             name="storeName"
             placeholder="Store Name"
-            className="w-full p-2 pr-8 border border-orange-200 rounded focus:outline-none focus:ring-2 focus:ring-orange-300 bg-gray-100"
+            className="w-full p-2 pr-8 border border-orange-200 rounded focus:outline-none focus:ring-2 focus:ring-orange-300"
             value={newItem.storeName}
             onChange={handleInputChange}
           />
         </div>
         <div className="flex flex-row h-[74px] justify-center">
           <button
-            className="max-w-fit h-[42px] px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition duration-300 flex items-center"
+            className="max-w-fit h-[42px] px-4 py-2 bg-orange-500 text-white rounded-md hover:bg-orange-600 transition duration-300 flex items-center"
             onClick={addItem}
           >
             {editingId == null ? (
