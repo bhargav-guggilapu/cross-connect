@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import EditIcon from "@mui/icons-material/Edit";
 import { Add, AddShoppingCart, Clear, Edit } from "@mui/icons-material";
+import Button from "./Helpers/Button";
+import { COLORS } from "./Constants/Colors";
 
 export default function Draft() {
   const [draftItems, setDraftItems] = useState([
@@ -113,15 +115,18 @@ export default function Draft() {
           Your Draft
         </h1>
         <div className="flex space-x-4">
-          <button className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition duration-300 flex items-center">
-            <AddShoppingCart className="mr-2" /> Place Order
-          </button>
-          <button
-            className="px-4 py-2 bg-red-100 text-red-800 rounded-md font-semibold hover:bg-red-200 transition duration-300 flex items-center"
+          <Button
+            icon={AddShoppingCart}
+            bgColor={COLORS.GREEN_600}
+            // onClick={handleChangeAgent}
+            text="Place Order"
+          />
+          <Button
+            icon={Clear}
+            bgColor={COLORS.RED_100}
             onClick={clearTable}
-          >
-            <Clear className="mr-2" /> Clear All
-          </button>
+            text="Clear All"
+          />
         </div>
       </div>
 
@@ -147,18 +152,21 @@ export default function Draft() {
                 <td className="p-3">{item.quantity}</td>
                 <td className="p-3">{item.storeName}</td>
                 <td className="p-3">
-                  <button
-                    className="px-4 py-2 bg-orange-500 text-white rounded-md hover:bg-orange-600 transition duration-300 mr-2"
-                    onClick={() => editItem(item.id)}
-                  >
-                    <EditIcon className="w-4 h-4" />
-                  </button>
-                  <button
-                    className="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600 transition duration-300"
-                    onClick={() => deleteItem(item.id)}
-                  >
-                    <DeleteOutlineIcon className="w-4 h-4" />
-                  </button>
+                  <div className="flex">
+                    <Button
+                      icon={EditIcon}
+                      bgColor={COLORS.ORANGE_500}
+                      buttonStyles="w-4 h-4"
+                      customStyles="mr-2"
+                      onClick={() => editItem(item.id)}
+                    />
+                    <Button
+                      icon={DeleteOutlineIcon}
+                      bgColor={COLORS.RED_500}
+                      buttonStyles="w-4 h-4"
+                      onClick={() => deleteItem(item.id)}
+                    />
+                  </div>
                 </td>
               </tr>
             ))}
@@ -224,17 +232,13 @@ export default function Draft() {
           />
         </div>
         <div className="flex flex-row h-[74px] justify-center">
-          <button
-            className="max-w-fit h-[42px] px-4 py-2 bg-orange-500 text-white rounded-md hover:bg-orange-600 transition duration-300 flex items-center"
+          <Button
+            icon={editingId == null ? Add : Edit}
+            bgColor={COLORS.ORANGE_500}
             onClick={addItem}
-          >
-            {editingId == null ? (
-              <Add className="mr-2" />
-            ) : (
-              <Edit className="mr-2" />
-            )}
-            {editingId == null ? "Add Item" : "Update Item"}
-          </button>
+            customStyles="max-w-fit h-[42px]"
+            text={editingId == null ? "Add Item" : "Update Item"}
+          />
         </div>
       </div>
     </div>
