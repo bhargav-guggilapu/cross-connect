@@ -4,9 +4,10 @@ import {
   DialogTitle,
   DialogContent,
   DialogActions,
-  Button,
 } from "@mui/material";
+import Button from "./Helpers/Button";
 import { Inventory } from "@mui/icons-material";
+import { COLORS } from "./Constants/Colors";
 
 const deliveries = [
   {
@@ -102,7 +103,7 @@ export default function Delivered() {
             <tr>
               <th className="p-3 text-left">Tracking ID</th>
               <th className="p-3 text-left">Delivered date</th>
-              <th className="p-3 text-left">Amount</th>
+              <th className="p-3 text-left">Amount ($)</th>
               <th className="p-3 text-left">Weight (KG)</th>
               <th className="p-3 text-left"></th>
             </tr>
@@ -118,12 +119,12 @@ export default function Delivered() {
                 <td className="p-3">{item.amount.toFixed(2)}</td>
                 <td className="p-3">{item.weight.toFixed(2)}</td>
                 <td className="p-3">
-                  <button
+                  <Button
+                    icon={Inventory}
+                    bgColor={COLORS.ORANGE_500}
                     onClick={() => openDialog(item.items)}
-                    className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition duration-300 flex items-center"
-                  >
-                    <Inventory className="mr-2" /> Items
-                  </button>
+                    text="Items"
+                  />
                 </td>
               </tr>
             ))}
@@ -182,19 +183,11 @@ export default function Delivered() {
         </DialogContent>
         <DialogActions>
           <Button
+            bgColor={COLORS.GREY_500}
+            customStyles="mr-4 mb-4"
             onClick={handleClose}
-            style={{
-              backgroundColor: "#f39c12",
-              marginRight: "15px",
-              marginBottom: "16px",
-              color: "white",
-              "&:hover": {
-                backgroundColor: "#e67e22",
-              },
-            }}
-          >
-            Close
-          </Button>
+            text="Close"
+          />
         </DialogActions>
       </Dialog>
     </div>

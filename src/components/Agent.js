@@ -1,6 +1,8 @@
 import { Chat, ConnectWithoutContact, SwapHoriz } from "@mui/icons-material";
 import { Avatar } from "@mui/material";
 import React, { useState } from "react";
+import Button from "./Helpers/Button";
+import { COLORS } from "./Constants/Colors";
 
 // Mock data for agents
 const agents = [
@@ -68,15 +70,18 @@ export default function Agent() {
               Agent Details
             </h1>
             <div className="space-x-4 flex items-center">
-              <button className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition duration-300 flex items-center">
-                <Chat className="mr-2" /> Chat
-              </button>
-              <button
+              <Button
+                icon={Chat}
+                bgColor={COLORS.GREEN_600}
+                // onClick={handleChangeAgent}
+                text="Chat"
+              />
+              <Button
+                icon={SwapHoriz}
+                bgColor={COLORS.ORANGE_500}
                 onClick={handleChangeAgent}
-                className="px-4 py-2 bg-orange-500 text-white rounded-md hover:bg-orange-600 transition duration-300 flex items-center"
-              >
-                <SwapHoriz className="mr-2" /> Change Agent
-              </button>
+                text="Change Agent"
+              />
             </div>
           </div>
           <div className="grid md:grid-cols-2 gap-8">
@@ -168,12 +173,12 @@ export default function Agent() {
                 </p>
               </div>
             </div>
-            <button
+            <Button
+              icon={ConnectWithoutContact}
+              bgColor={COLORS.ORANGE_500}
               onClick={() => handleConnect(agent)}
-              className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition duration-300 flex items-center"
-            >
-              <ConnectWithoutContact className="mr-2" /> Connect
-            </button>
+              text="Connect"
+            />
           </div>
         ))}
       </div>

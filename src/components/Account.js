@@ -199,13 +199,13 @@ export default function AccountPage() {
   );
 
   return (
-    <div className="flex-1 overflow-auto p-6 bg-orange-50">
-      <h2
+    <div className="p-6 bg-orange-50">
+      <h1
         className="text-2xl font-bold mb-4 text-orange-800"
         style={{ fontFamily: "Rajdhani, sans-serif" }}
       >
         Account Details
-      </h2>
+      </h1>
       <form onSubmit={handleSubmit}>
         {renderSection(
           "Personal Information",

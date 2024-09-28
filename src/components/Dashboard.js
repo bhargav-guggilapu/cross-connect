@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Chat, ContentCopy, Edit, TrackChanges } from "@mui/icons-material";
+import Button from "./Helpers/Button";
+import { COLORS } from "./Constants/Colors";
 
 // Random agent data
 const agentData = {
@@ -165,9 +167,12 @@ export default function Dashboard() {
             <span className="text-sm text-gray-600">
               Local time: {getIndianTime(time)}
             </span>
-            <button className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition duration-300 flex items-center">
-              <Chat className="mr-2" /> Chat
-            </button>
+            <Button
+              icon={Chat}
+              bgColor={COLORS.GREEN_600}
+              // onClick={handleChangeAgent}
+              text="Chat"
+            />
           </div>
         </div>
 
@@ -232,17 +237,14 @@ export default function Dashboard() {
         </h2>
         <div className="flex space-x-4 mb-4">
           {Object.keys(tableData).map((tab) => (
-            <button
+            <Button
               key={tab}
-              className={`px-4 py-2 rounded transition duration-300 ${
-                activeTab === tab
-                  ? "bg-orange-500 text-white"
-                  : "bg-orange-100 text-orange-800 hover:bg-orange-200"
+              customStyles={`${
+                activeTab === tab ? COLORS.ORANGE_500 : COLORS.ORANGE_100
               }`}
               onClick={() => handleTabClick(tab)}
-            >
-              {tab} ({tableData[tab].length})
-            </button>
+              text={`${tab} (${tableData[tab].length})`}
+            />
           ))}
         </div>
         <div className="overflow-x-auto">
@@ -264,14 +266,12 @@ export default function Dashboard() {
                 >
                   {renderTableRow(item)}
                   <td className="p-3">
-                    <button className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition duration-300 flex items-center">
-                      {activeTab === "Draft" ? (
-                        <Edit className="mr-2" />
-                      ) : (
-                        <TrackChanges className="mr-2" />
-                      )}{" "}
-                      {activeTab === "Draft" ? "Edit" : "Track Order"}{" "}
-                    </button>
+                    <Button
+                      icon={activeTab === "Draft" ? Edit : TrackChanges}
+                      bgColor={COLORS.ORANGE_500}
+                      // onClick={handleChangeAgent}
+                      text={activeTab === "Draft" ? "Edit" : "Track Order"}
+                    />
                   </td>
                 </tr>
               ))}

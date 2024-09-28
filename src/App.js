@@ -9,6 +9,7 @@ import Draft from "./components/Draft";
 import ProhibitedItems from "./components/ProhibitedItems";
 import Delivered from "./components/Delivered";
 import Account from "./components/Account";
+import InProgress from "./components/InProgress";
 
 function PlaceholderComponent({ title }) {
   return (
@@ -43,10 +44,7 @@ export default function App() {
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/agent" element={<Agent />} />
             <Route path="/draft" element={<Draft />} />
-            <Route
-              path="/in-progress"
-              element={<PlaceholderComponent title="In Progress" />}
-            />
+            <Route path="/in-progress" element={<InProgress />} />
             <Route path="/delivered" element={<Delivered />} />
             <Route path="/prohibited-items" element={<ProhibitedItems />} />
             <Route path="/account" element={<Account />} />
