@@ -3,7 +3,7 @@ import { Avatar } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import Button from "./Helpers/Button";
-import { COLORS } from "./Constants/Colors";
+import { COLORS } from "./Constants/Constants";
 
 export default function HeadBar() {
   const [greeting, setGreeting] = useState("");

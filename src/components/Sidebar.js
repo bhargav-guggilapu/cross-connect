@@ -9,8 +9,9 @@ import {
   Security,
   AccountCircle,
 } from "@mui/icons-material";
+import { ROLES } from "./Constants/Constants";
 
-const menuItems = [
+const customerMenuItems = [
   { name: "Dashboard", icon: Home, path: "/dashboard" },
   { name: "Agent", icon: Person, path: "/agent" },
   { name: "Draft", icon: Description, path: "/draft" },
@@ -20,8 +21,14 @@ const menuItems = [
   { name: "Account", icon: AccountCircle, path: "/account" },
 ];
 
-export default function Sidebar() {
+const agentMenuItems = [
+  { name: "Dashboard", icon: Home, path: "/dashboard" },
+  { name: "Account", icon: AccountCircle, path: "/account" },
+];
+
+export default function Sidebar({ userRole }) {
   const location = useLocation();
+  const menuItems = userRole === ROLES.AGENT ? agentMenuItems : customerMenuItems;
 
   return (
     <div className="w-64 bg-white shadow-md overflow-y-auto">

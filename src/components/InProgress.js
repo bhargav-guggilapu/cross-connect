@@ -1,13 +1,9 @@
 import React, { useState } from "react";
-import {
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-} from "@mui/material";
 import Button from "./Helpers/Button";
-import { Inventory, Payment, TrackChanges } from "@mui/icons-material";
-import { COLORS } from "./Constants/Colors";
+import { Inventory, Payment } from "@mui/icons-material";
+import { COLORS } from "./Constants/Constants";
+import ItemDetails from "./ItemDetails";
+import ProgressIndicator from "./ProgressIndicator";
 
 const inProgressItems = [
   {
@@ -140,26 +136,6 @@ const inProgressItems = [
   },
 ];
 
-const ProgressIndicator = ({ currentStep }) => {
-  return (
-    <div className="flex items-center justify-center space-x-4 mt-6">
-      {[1, 2, 3, 4, 5, 6].map((step) => (
-        <div
-          key={step}
-          className={`px-4 py-2 rounded-full text-sm font-medium
-            ${
-              step === currentStep
-                ? "bg-orange-500 text-white"
-                : "bg-gray-200 text-gray-600"
-            }`}
-        >
-          Step {step}
-        </div>
-      ))}
-    </div>
-  );
-};
-
 export default function InProgress() {
   const [isOpen, setIsOpen] = useState(false);
   const [selectedItems, setSelectedItems] = useState([]);
@@ -169,17 +145,13 @@ export default function InProgress() {
     setIsOpen(true);
   };
 
-  const handleClose = () => {
-    setIsOpen(false);
-  };
-
   return (
     <div className="p-6 bg-orange-50">
       <h1
         className="text-2xl font-bold mb-4 text-orange-800"
         style={{ fontFamily: "Rajdhani, sans-serif" }}
       >
-        In progress
+        In Progress
       </h1>
       {inProgressItems.map((item) => (
         <div
@@ -261,69 +233,16 @@ export default function InProgress() {
                 </p>
               </div>
             )}
-            <ProgressIndicator currentStep={item.currentStep} />
+            <ProgressIndicator activeStep={item.currentStep} />
           </div>
         </div>
       ))}
-
-      <Dialog
-        open={isOpen}
-        onClose={handleClose}
-        aria-labelledby="in-progress-items"
-        PaperProps={{
-          style: {
-            backgroundColor: "#fff8e1",
-            borderRadius: "1rem",
-            boxShadow: "0 8px 12px rgba(0, 0, 0, 0.2)",
-            maxWidth: "1000px",
-            width: "90%",
-          },
-        }}
-      >
-        <DialogTitle id="dialog-title">
-          <h1
-            className="text-2xl font-bold text-orange-800 mb-4 mt-4"
-            style={{ fontFamily: "Rajdhani, sans-serif" }}
-          >
-            In Progress Items
-          </h1>
-        </DialogTitle>
-        <DialogContent>
-          <div className="bg-white rounded-lg shadow overflow-hidden">
-            <table className="w-full bg-white shadow-md rounded-lg overflow-hidden">
-              <thead className="bg-orange-500 text-white">
-                <tr>
-                  <th className="p-3 text-left">Name</th>
-                  <th className="p-3 text-left">Description</th>
-                  <th className="p-3 text-left">Quantity</th>
-                  <th className="p-3 text-left">Store Name</th>
-                </tr>
-              </thead>
-              <tbody>
-                {selectedItems.map((item, index) => (
-                  <tr
-                    key={index}
-                    className={index % 2 === 0 ? "bg-orange-100" : ""}
-                  >
-                    <td className="p-3">{item.name}</td>
-                    <td className="p-3">{item.description}</td>
-                    <td className="p-3">{item.quantity}</td>
-                    <td className="p-3">{item.storeName}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </DialogContent>
-        <DialogActions>
-          <Button
-            bgColor={COLORS.GREY_500}
-            customStyles="mr-4 mb-4"
-            onClick={handleClose}
-            text="Close"
-          />
-        </DialogActions>
-      </Dialog>
+      <ItemDetails
+        isOpen={isOpen}
+        selectedItems={selectedItems}
+        setIsOpen={setIsOpen}
+        title="In Progress"
+      />
     </div>
   );
 }
