@@ -517,7 +517,7 @@ function AgentDashboard() {
               >
                 {renderTableRowAgent(item)}
                 <td className="p-3">
-                  <div className="flex justify-center align-middle space-x-4">
+                  <div className="flex justify-center items-center space-x-4">
                     {(activeTab === "Shippings" || activeTab === "Confirm") && (
                       <Button
                         icon={CheckCircle}
