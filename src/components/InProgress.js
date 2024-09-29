@@ -29,6 +29,7 @@ const inProgressItems = [
         storeName: "Amazon",
       },
     ],
+    orderDetails: {},
   },
   {
     id: 1432,
@@ -50,13 +51,13 @@ const inProgressItems = [
         storeName: "Levi's",
       },
     ],
+    orderDetails: {},
   },
   {
     id: 343543,
     orderId: "343543",
     description: "",
     currentStep: 3,
-    itemsCost: 50,
     items: [
       {
         name: "Laptop",
@@ -71,6 +72,7 @@ const inProgressItems = [
         storeName: "Amazon",
       },
     ],
+    orderDetails: { itemsCost: 50 },
   },
   {
     id: 343543,
@@ -92,14 +94,13 @@ const inProgressItems = [
         storeName: "Amazon",
       },
     ],
+    orderDetails: {},
   },
   {
     id: 4545,
     orderId: "4545",
     description: "Waiting for Agent to confirm on your order.",
     currentStep: 5,
-    packageWeight: "2.5",
-    shippingCost: "70",
     items: [
       {
         name: "Laptop",
@@ -114,13 +115,13 @@ const inProgressItems = [
         storeName: "Amazon",
       },
     ],
+    orderDetails: { packageWeight: "2.5", shippingCost: "70" },
   },
   {
     id: 984374,
     orderId: "984374",
     description: "",
     currentStep: 6,
-    trackingId: "3473567347836436",
     items: [
       {
         name: "Laptop",
@@ -135,6 +136,7 @@ const inProgressItems = [
         storeName: "Amazon",
       },
     ],
+    orderDetails: { trackingId: "3473567347836436" },
   },
 ];
 
@@ -209,14 +211,6 @@ export default function InProgress() {
                   text="Pay Now"
                 />
               )}
-              {item.currentStep === 6 && (
-                <Button
-                  icon={TrackChanges}
-                  bgColor={COLORS.GREEN_600}
-                  // onClick={handleChangeAgent}
-                  text="Track Order"
-                />
-              )}
             </div>
           </div>
           <div className="my-6">
@@ -229,7 +223,9 @@ export default function InProgress() {
               <div className="text-lg text-gray-700 mb-10 text-center">
                 <p>
                   Your total items cost is{" "}
-                  <span className="text-orange-500">${item.itemsCost}</span>
+                  <span className="text-orange-500">
+                    ${item.orderDetails.itemsCost}
+                  </span>
                 </p>
                 <p className="text-gray-500 text-sm mt-5">
                   Pay now to get items
@@ -241,12 +237,14 @@ export default function InProgress() {
                 <p>
                   Your package weight is{" "}
                   <span className="text-orange-500">
-                    {item.packageWeight} KG
+                    {item.orderDetails.packageWeight} KG
                   </span>
                 </p>
                 <p>
                   Your shipping cost is{" "}
-                  <span className="text-orange-500">${item.shippingCost}</span>
+                  <span className="text-orange-500">
+                    ${item.orderDetails.shippingCost}
+                  </span>
                 </p>
                 <p className="text-gray-500 text-sm mt-5">
                   Pay now to ship items
@@ -257,7 +255,9 @@ export default function InProgress() {
               <div className="text-lg text-gray-700 mb-10 text-center">
                 <p>
                   Your package has been shipped, your tracking id is{" "}
-                  <span className="text-orange-500">{item.trackingId}</span>
+                  <span className="bg-orange-500 font-bold text-white px-3 py-1 rounded-full text-sm mr-2 cursor-pointer">
+                    {item.orderDetails.trackingId}
+                  </span>
                 </p>
               </div>
             )}
