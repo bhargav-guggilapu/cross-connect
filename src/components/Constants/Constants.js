@@ -7,3 +7,8 @@ export const COLORS = {
   ORANGE_100: "bg-orange-100 text-orange-800 hover:bg-orange-200",
   GREY_500: "bg-gray-500 text-white hover:bg-gray-600",
 };
+
+export const ROLES = {
+  AGENT: "agent",
+  CUSTOMER: "customer",
+};

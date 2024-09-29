@@ -2,7 +2,7 @@ import { Chat, ConnectWithoutContact, SwapHoriz } from "@mui/icons-material";
 import { Avatar } from "@mui/material";
 import React, { useState } from "react";
 import Button from "./Helpers/Button";
-import { COLORS } from "./Constants/Colors";
+import { COLORS } from "./Constants/Constants";
 
 // Mock data for agents
 const agents = [

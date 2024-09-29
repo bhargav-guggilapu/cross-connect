@@ -1,13 +1,8 @@
 import React, { useState } from "react";
-import {
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-} from "@mui/material";
 import Button from "./Helpers/Button";
 import { Inventory } from "@mui/icons-material";
-import { COLORS } from "./Constants/Colors";
+import { COLORS } from "./Constants/Constants";
+import ItemDetails from "./ItemDetails";
 
 const deliveries = [
   {
@@ -84,10 +79,6 @@ export default function Delivered() {
     setIsOpen(true);
   };
 
-  const handleClose = () => {
-    setIsOpen(false);
-  };
-
   return (
     <div className="p-6 bg-orange-50">
       <h1
@@ -103,8 +94,8 @@ export default function Delivered() {
             <tr>
               <th className="p-3 text-left">Tracking ID</th>
               <th className="p-3 text-left">Delivered date</th>
-              <th className="p-3 text-left">Amount ($)</th>
-              <th className="p-3 text-left">Weight (KG)</th>
+              <th className="p-3 text-left">Amount</th>
+              <th className="p-3 text-left">Weight</th>
               <th className="p-3 text-left"></th>
             </tr>
           </thead>
@@ -116,8 +107,8 @@ export default function Delivered() {
               >
                 <td className="p-3">{item.trackingId}</td>
                 <td className="p-3">{item.deliveredDate}</td>
-                <td className="p-3">{item.amount.toFixed(2)}</td>
-                <td className="p-3">{item.weight.toFixed(2)}</td>
+                <td className="p-3">$ {item.amount.toFixed(2)}</td>
+                <td className="p-3">{item.weight.toFixed(2)} KG</td>
                 <td className="p-3">
                   <Button
                     icon={Inventory}
@@ -131,65 +122,12 @@ export default function Delivered() {
           </tbody>
         </table>
       </div>
-
-      <Dialog
-        open={isOpen}
-        onClose={handleClose}
-        aria-labelledby="delivered-items"
-        PaperProps={{
-          style: {
-            backgroundColor: "#fff8e1",
-            borderRadius: "1rem",
-            boxShadow: "0 8px 12px rgba(0, 0, 0, 0.2)",
-            maxWidth: "1000px",
-            width: "90%",
-          },
-        }}
-      >
-        <DialogTitle id="dialog-title">
-          <h1
-            className="text-2xl font-bold text-orange-800 mb-4 mt-4"
-            style={{ fontFamily: "Rajdhani, sans-serif" }}
-          >
-            Delivered Items
-          </h1>
-        </DialogTitle>
-        <DialogContent>
-          <div className="bg-white rounded-lg shadow overflow-hidden">
-            <table className="w-full bg-white shadow-md rounded-lg overflow-hidden">
-              <thead className="bg-orange-500 text-white">
-                <tr>
-                  <th className="p-3 text-left">Name</th>
-                  <th className="p-3 text-left">Description</th>
-                  <th className="p-3 text-left">Quantity</th>
-                  <th className="p-3 text-left">Store Name</th>
-                </tr>
-              </thead>
-              <tbody>
-                {selectedItems.map((item, index) => (
-                  <tr
-                    key={item.id}
-                    className={index % 2 === 0 ? "bg-orange-100" : ""}
-                  >
-                    <td className="p-3">{item.name}</td>
-                    <td className="p-3">{item.description}</td>
-                    <td className="p-3">{item.quantity}</td>
-                    <td className="p-3">{item.storeName}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </DialogContent>
-        <DialogActions>
-          <Button
-            bgColor={COLORS.GREY_500}
-            customStyles="mr-4 mb-4"
-            onClick={handleClose}
-            text="Close"
-          />
-        </DialogActions>
-      </Dialog>
+      <ItemDetails
+        isOpen={isOpen}
+        selectedItems={selectedItems}
+        setIsOpen={setIsOpen}
+        title="In Progress"
+      />
     </div>
   );
 }
