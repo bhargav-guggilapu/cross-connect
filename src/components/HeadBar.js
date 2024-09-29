@@ -2,6 +2,8 @@ import { Security } from "@mui/icons-material";
 import { Avatar } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import Button from "./Helpers/Button";
+import { COLORS } from "./Constants/Colors";
 
 export default function HeadBar() {
   const [greeting, setGreeting] = useState("");
@@ -29,14 +31,16 @@ export default function HeadBar() {
           {greeting} User1
         </h1>
         <div className="flex items-center space-x-4">
-          <span className="text-white font-bold underline cursor-pointer">
+          <span className="bg-orange-500 font-bold text-white px-3 py-1 rounded-full text-sm mr-2 cursor-pointer">
             534275
           </span>
 
           <Link key="Prohibited Items" to="/prohibited-items">
-            <button className="px-4 py-2 bg-red-600 text-white rounded-md font-semibold hover:bg-red-700 transition duration-300 flex items-center">
-              <Security className="mr-2" /> Prohibited Items
-            </button>
+            <Button
+              text="Prohibited Items"
+              icon={Security}
+              bgColor={COLORS.RED_600}
+            />
           </Link>
           <Avatar
             alt="User1"
