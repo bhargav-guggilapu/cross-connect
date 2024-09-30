@@ -104,7 +104,6 @@ export default function AccountPage() {
 
     if (validateForm()) {
       setIsEditing(false);
-      console.log("Updated user data:", userData);
     }
   };
 
@@ -135,7 +134,6 @@ export default function AccountPage() {
       return;
     }
 
-    console.log("Password change requested:", passwords);
     setShowPasswordChange(false);
     setPasswords({ current: "", new: "", confirm: "" });
     setErrorMessage("");

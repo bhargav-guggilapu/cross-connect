@@ -146,7 +146,7 @@ export default function Dashboard({ userRole }) {
 
   const getUsaTime = async (city, country) => {
     // const response = await fetch(
-    //   `https://api.ipgeolocation.io/timezone?apiKey=5b85105166ba46bcab905bac3c848b37&location=${city}, ${country}`
+    //   `https://api.ipgeolocation.io/timezone?apiKey=${process.env.TIME_ZONE_API_KEY}&location=${city}, ${country}`
     // );
     // const data = await response.json();
     // const initialTime = new Date(data.date_time_txt);
