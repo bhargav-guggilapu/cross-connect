@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
-import Button from "./Helpers/Button";
-import { COLORS, ROLES } from "./Constants/Constants";
+import { ROLES } from "./Constants/Constants";
 import bgImage from "../images/bg-image.jpg";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import {
@@ -22,8 +21,11 @@ export default function LoginPage({ userRole, setUserRole }) {
     email: "",
     password: "",
     confirmPassword: "",
+    zipCode: "",
+    role: ROLES.CUSTOMER,
   });
   const [errors, setErrors] = useState({});
+  const [touched, setTouched] = useState({});
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
@@ -35,26 +37,65 @@ export default function LoginPage({ userRole, setUserRole }) {
     return () => unsubscribe();
   }, [navigate]);
 
+  const validateField = (name, value) => {
+    let error = "";
+    switch (name) {
+      case "firstName":
+        if (!value.trim()) error = "First Name is required";
+        break;
+      case "lastName":
+        if (!value.trim()) error = "Last Name is required";
+        break;
+      case "email":
+        if (!value.trim()) error = "Email is required";
+        else if (!/\S+@\S+\.\S+/.test(value)) error = "Email is invalid";
+        break;
+      case "password":
+        if (!value) error = "Password is required";
+        else if (value.length < 8)
+          error = "Password must be at least 8 characters";
+        break;
+      case "confirmPassword":
+        if (!value) error = "Confirm password is required";
+        else if (value !== formData.password) error = "Passwords do not match";
+        break;
+      case "zipCode":
+        if (!value.trim()) error = "Zip code is required";
+        else if (!/^\d{5}(-\d{4})?$/.test(value)) error = "Invalid zip code";
+        break;
+      default:
+        break;
+    }
+    return error;
+  };
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
+    setErrors((prev) => ({ ...prev, [name]: validateField(name, value) }));
+  };
+
+  const handleBlur = (e) => {
+    const { name } = e.target;
+    setTouched((prev) => ({ ...prev, [name]: true }));
+    setErrors((prev) => ({
+      ...prev,
+      [name]: validateField(name, formData[name]),
+    }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     const newErrors = {};
-
-    if (!formData.email.trim()) newErrors.email = "Email is required";
-    if (!formData.password.trim()) newErrors.password = "Password is required";
-
-    if (!isLogin) {
-      if (!formData.confirmPassword.trim())
-        newErrors.confirmPassword = "Confirm password is required";
-      if (formData.password !== formData.confirmPassword)
-        newErrors.confirmPassword = "Passwords do not match";
-    }
+    Object.keys(formData).forEach((key) => {
+      const error = validateField(key, formData[key]);
+      if (error) newErrors[key] = error;
+    });
 
     setErrors(newErrors);
+    setTouched(
+      Object.keys(formData).reduce((acc, key) => ({ ...acc, [key]: true }), {})
+    );
 
     if (Object.keys(newErrors).length === 0) {
       try {
@@ -64,15 +105,15 @@ export default function LoginPage({ userRole, setUserRole }) {
             formData.email,
             formData.password
           );
-          navigate("/dashboard");
         } else {
           await createUserWithEmailAndPassword(
             auth,
             formData.email,
             formData.password
           );
-          navigate("/dashboard");
         }
+        setUserRole(formData.role);
+        navigate("/dashboard");
       } catch (error) {
         console.error("Auth error:", error);
         setErrors({ email: error.message });
@@ -83,6 +124,7 @@ export default function LoginPage({ userRole, setUserRole }) {
   const toggleAuthMode = () => {
     setIsLogin(!isLogin);
     setErrors({});
+    setTouched({});
   };
 
   return (
@@ -110,81 +152,131 @@ export default function LoginPage({ userRole, setUserRole }) {
 
       {/* Right side */}
       <div className="w-full lg:w-1/2 flex flex-col">
-        <div className="flex justify-end p-4">
-          <Button
-            bgColor={
-              userRole === ROLES.AGENT ? COLORS.ORANGE_500 : COLORS.ORANGE_200
-            }
-            customStyles="mr-2 rounded-l-full"
-            onClick={() => setUserRole(ROLES.AGENT)}
-            text={ROLES.AGENT}
-          />
-          <Button
-            bgColor={
-              userRole === ROLES.CUSTOMER
-                ? COLORS.ORANGE_500
-                : COLORS.ORANGE_200
-            }
-            customStyles="rounded-r-full"
-            onClick={() => setUserRole(ROLES.CUSTOMER)}
-            text={ROLES.CUSTOMER}
-          />
-        </div>
         <div className="flex-grow flex items-center justify-center p-6">
           <div className="max-w-md w-full bg-white rounded-lg shadow-md border border-orange-200 p-8">
             <h1 className="text-3xl font-bold mb-6 text-center text-orange-800 font-rajdhani">
-              {isLogin ? `Sign In as ${userRole}` : `Sign Up as ${userRole}`}
+              {isLogin ? "Sign In" : "Sign Up"}
             </h1>
             <form onSubmit={handleSubmit} className="space-y-4">
               {!isLogin && (
-                <div className="grid grid-cols-2 gap-4">
+                <>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label
+                        htmlFor="firstName"
+                        className="block text-sm font-medium text-gray-700 font-poppins"
+                      >
+                        First Name
+                      </label>
+                      <input
+                        type="text"
+                        id="firstName"
+                        name="firstName"
+                        value={formData.firstName}
+                        onChange={handleChange}
+                        onBlur={handleBlur}
+                        placeholder="Enter your first name"
+                        className={`mt-1 block w-full px-3 py-2 border ${
+                          touched.firstName && errors.firstName
+                            ? "border-red-500"
+                            : "border-orange-200"
+                        } rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-300 bg-white`}
+                      />
+                      {touched.firstName && errors.firstName && (
+                        <p className="text-red-500 text-sm mt-1">
+                          {errors.firstName}
+                        </p>
+                      )}
+                    </div>
+                    <div>
+                      <label
+                        htmlFor="lastName"
+                        className="block text-sm font-medium text-gray-700 font-poppins"
+                      >
+                        Last Name
+                      </label>
+                      <input
+                        type="text"
+                        id="lastName"
+                        name="lastName"
+                        value={formData.lastName}
+                        onChange={handleChange}
+                        onBlur={handleBlur}
+                        placeholder="Enter your last name"
+                        className={`mt-1 block w-full px-3 py-2 border ${
+                          touched.lastName && errors.lastName
+                            ? "border-red-500"
+                            : "border-orange-200"
+                        } rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-300 bg-white`}
+                      />
+                      {touched.lastName && errors.lastName && (
+                        <p className="text-red-500 text-sm mt-1">
+                          {errors.lastName}
+                        </p>
+                      )}
+                    </div>
+                  </div>
                   <div>
                     <label
-                      htmlFor="firstName"
+                      htmlFor="zipCode"
                       className="block text-sm font-medium text-gray-700 font-poppins"
                     >
-                      First Name
+                      Zip Code
                     </label>
                     <input
                       type="text"
-                      id="firstName"
-                      name="firstName"
-                      value={formData.firstName}
+                      id="zipCode"
+                      name="zipCode"
+                      value={formData.zipCode}
                       onChange={handleChange}
-                      placeholder="Enter your first name"
+                      onBlur={handleBlur}
+                      placeholder="Enter your zip code"
                       className={`mt-1 block w-full px-3 py-2 border ${
-                        errors.firstName
+                        touched.zipCode && errors.zipCode
                           ? "border-red-500"
                           : "border-orange-200"
                       } rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-300 bg-white`}
                     />
-                    {errors.firstName && (
-                      <p className="text-red-500 text-sm">{errors.firstName}</p>
+                    {touched.zipCode && errors.zipCode && (
+                      <p className="text-red-500 text-sm mt-1">
+                        {errors.zipCode}
+                      </p>
                     )}
                   </div>
                   <div>
-                    <label
-                      htmlFor="lastName"
-                      className="block text-sm font-medium text-gray-700 font-poppins"
-                    >
-                      Last Name
+                    <label className="block text-sm font-medium text-gray-700 font-poppins mb-2">
+                      Role
                     </label>
-                    <input
-                      type="text"
-                      id="lastName"
-                      name="lastName"
-                      value={formData.lastName}
-                      onChange={handleChange}
-                      placeholder="Enter your last name"
-                      className={`mt-1 block w-full px-3 py-2 border ${
-                        errors.lastName ? "border-red-500" : "border-orange-200"
-                      } rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-300 bg-white`}
-                    />
-                    {errors.lastName && (
-                      <p className="text-red-500 text-sm">{errors.lastName}</p>
-                    )}
+                    <div className="flex space-x-4">
+                      <label className="inline-flex items-center">
+                        <input
+                          type="radio"
+                          name="role"
+                          value={ROLES.CUSTOMER}
+                          checked={formData.role === ROLES.CUSTOMER}
+                          onChange={handleChange}
+                          className="h-5 w-5 text-orange-600 border-gray-300 focus:ring-orange-500 focus:outline-none"
+                        />
+                        <span className="ml-2 text-sm text-gray-700 font-poppins">
+                          {ROLES.CUSTOMER}
+                        </span>
+                      </label>
+                      <label className="inline-flex items-center">
+                        <input
+                          type="radio"
+                          name="role"
+                          value={ROLES.AGENT}
+                          checked={formData.role === ROLES.AGENT}
+                          onChange={handleChange}
+                          className="h-5 w-5 text-orange-600 border-gray-300 focus:ring-orange-500 focus:outline-none"
+                        />
+                        <span className="ml-2 text-sm text-gray-700 font-poppins">
+                          {ROLES.AGENT}
+                        </span>
+                      </label>
+                    </div>
                   </div>
-                </div>
+                </>
               )}
               <div>
                 <label
@@ -199,13 +291,16 @@ export default function LoginPage({ userRole, setUserRole }) {
                   name="email"
                   value={formData.email}
                   onChange={handleChange}
+                  onBlur={handleBlur}
                   placeholder="Enter your email address"
                   className={`mt-1 block w-full px-3 py-2 border ${
-                    errors.email ? "border-red-500" : "border-orange-200"
+                    touched.email && errors.email
+                      ? "border-red-500"
+                      : "border-orange-200"
                   } rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-300 bg-white`}
                 />
-                {errors.email && (
-                  <p className="text-red-500 text-sm">{errors.email}</p>
+                {touched.email && errors.email && (
+                  <p className="text-red-500 text-sm mt-1">{errors.email}</p>
                 )}
               </div>
               <div>
@@ -222,9 +317,12 @@ export default function LoginPage({ userRole, setUserRole }) {
                     name="password"
                     value={formData.password}
                     onChange={handleChange}
+                    onBlur={handleBlur}
                     placeholder="Enter your password"
                     className={`mt-1 block w-full px-3 py-2 pr-10 border ${
-                      errors.password ? "border-red-500" : "border-orange-200"
+                      touched.password && errors.password
+                        ? "border-red-500"
+                        : "border-orange-200"
                     } rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-300 bg-white`}
                   />
                   <button
@@ -239,8 +337,8 @@ export default function LoginPage({ userRole, setUserRole }) {
                     )}
                   </button>
                 </div>
-                {errors.password && (
-                  <p className="text-red-500 text-sm">{errors.password}</p>
+                {touched.password && errors.password && (
+                  <p className="text-red-500 text-sm mt-1">{errors.password}</p>
                 )}
               </div>
               {!isLogin && (
@@ -258,9 +356,10 @@ export default function LoginPage({ userRole, setUserRole }) {
                       name="confirmPassword"
                       value={formData.confirmPassword}
                       onChange={handleChange}
+                      onBlur={handleBlur}
                       placeholder="Confirm your password"
                       className={`mt-1 block w-full px-3 py-2 pr-10 border ${
-                        errors.confirmPassword
+                        touched.confirmPassword && errors.confirmPassword
                           ? "border-red-500"
                           : "border-orange-200"
                       } rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-300 bg-white`}
@@ -279,8 +378,8 @@ export default function LoginPage({ userRole, setUserRole }) {
                       )}
                     </button>
                   </div>
-                  {errors.confirmPassword && (
-                    <p className="text-red-500 text-sm">
+                  {touched.confirmPassword && errors.confirmPassword && (
+                    <p className="text-red-500 text-sm mt-1">
                       {errors.confirmPassword}
                     </p>
                   )}
