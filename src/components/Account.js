@@ -6,26 +6,29 @@ import {
   Visibility,
   VisibilityOff,
 } from "@mui/icons-material";
+import { updateUser } from "../services/Api";
+import Loading from "./Loading";
 
-const initialUserData = {
-  personalInfo: {
-    firstName: "John",
-    lastName: "Doe",
-    email: "john.doe@example.com",
-    phoneNumber: "(555) 123-4567",
-  },
-  address: {
-    addressLine1: "123 Main St",
-    addressLine2: "Apt 4B",
-    city: "Anytown",
-    state: "CA",
-    country: "USA",
-    zip: "12345",
-  },
-};
+export default function AccountPage({ user, setUser }) {
+  const [loading, setLoading] = useState(true);
+  const [userData, setUserData] = useState({
+    personalInfo: {
+      firstName: user.firstName || "",
+      lastName: user.lastName || "",
+      email: user.email || "",
+      phoneNumber: user.phoneNumber || "",
+      photo: user.photo || "",
+    },
+    address: {
+      addressLine1: user.address?.addressLine1 || "",
+      addressLine2: user.address?.addressLine2 || "",
+      city: user.address?.city || "",
+      state: user.address?.state || "",
+      country: user.address?.country || "",
+      zipCode: user.address?.zipCode || "",
+    },
+  });
 
-export default function AccountPage() {
-  const [userData, setUserData] = useState(initialUserData);
   const [isEditing, setIsEditing] = useState(false);
   const [showPasswordChange, setShowPasswordChange] = useState(false);
   const [passwords, setPasswords] = useState({
@@ -50,7 +53,7 @@ export default function AccountPage() {
       },
     }));
 
-    if (value.trim() || field === "addressLine2") {
+    if (value.trim() || field === "addressLine2" || field === "photo") {
       setErrors((prevErrors) => ({
         ...prevErrors,
         [`${section}.${field}`]: "",
@@ -83,7 +86,7 @@ export default function AccountPage() {
   const validateForm = () => {
     const newErrors = {};
     Object.entries(userData.personalInfo).forEach(([key, value]) => {
-      if (!value.trim()) {
+      if (!value.trim() && key !== "photo") {
         newErrors[`personalInfo.${key}`] = "This field is required";
       }
     });
@@ -99,11 +102,22 @@ export default function AccountPage() {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (validateForm()) {
+      setLoading(true);
+      const updatedUser = await updateUser({
+        ...user,
+        phoneNumber: userData.personalInfo.phoneNumber,
+        photo: userData.personalInfo.photo,
+        address: {
+          ...userData.address,
+        },
+      });
+      setUser(updatedUser.data);
       setIsEditing(false);
+      setLoading(false);
     }
   };
 
@@ -195,6 +209,10 @@ export default function AccountPage() {
       </div>
     </div>
   );
+
+  if (loading) {
+    return <Loading />;
+  }
 
   return (
     <div className="p-6 bg-orange-50">

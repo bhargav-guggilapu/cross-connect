@@ -1,5 +1,6 @@
+export const BACKEND_URL = "http://localhost:3001";
+
 export const API_ENDPOINTS = {
-//   USERS: "/users",
-//   PRODUCTS: "/products",
-//   ORDERS: "/orders",
+  USERS: "/users",
+  PROHIBITED_ITEMS: "/prohibitedItems",
 };

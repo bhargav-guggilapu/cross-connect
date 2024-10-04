@@ -1,16 +1,16 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { ROLES } from "./Constants/Constants";
 import bgImage from "../images/bg-image.jpg";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import {
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
-  onAuthStateChanged,
 } from "firebase/auth";
 import { auth } from "../auth/firebase";
 import { useNavigate } from "react-router-dom";
+import { createUser, getUserByEmail } from "../services/Api";
 
-export default function LoginPage({ userRole, setUserRole }) {
+export default function LoginPage({ setUser }) {
   const navigate = useNavigate();
   const [isLogin, setIsLogin] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
@@ -23,19 +23,10 @@ export default function LoginPage({ userRole, setUserRole }) {
     confirmPassword: "",
     zipCode: "",
     role: ROLES.CUSTOMER,
+    photo: "",
   });
   const [errors, setErrors] = useState({});
   const [touched, setTouched] = useState({});
-
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      if (user) {
-        navigate("/dashboard");
-      }
-    });
-
-    return () => unsubscribe();
-  }, [navigate]);
 
   const validateField = (name, value) => {
     let error = "";
@@ -60,8 +51,10 @@ export default function LoginPage({ userRole, setUserRole }) {
         else if (value !== formData.password) error = "Passwords do not match";
         break;
       case "zipCode":
-        if (!value.trim()) error = "Zip code is required";
-        else if (!/^\d{5}(-\d{4})?$/.test(value)) error = "Invalid zip code";
+        if (formData.role === ROLES.CUSTOMER) {
+          if (!value.trim()) error = "Zip code is required";
+          else if (!/^\d{6}(-\d{5})?$/.test(value)) error = "Invalid zip code";
+        }
         break;
       default:
         break;
@@ -88,6 +81,20 @@ export default function LoginPage({ userRole, setUserRole }) {
     e.preventDefault();
     const newErrors = {};
     Object.keys(formData).forEach((key) => {
+      if (
+        isLogin &&
+        (key === "firstName" ||
+          key === "lastName" ||
+          key === "confirmPassword" ||
+          key === "zipCode")
+      ) {
+        return;
+      }
+
+      if (key === "zipCode" && formData.role !== ROLES.CUSTOMER) {
+        return;
+      }
+
       const error = validateField(key, formData[key]);
       if (error) newErrors[key] = error;
     });
@@ -105,14 +112,17 @@ export default function LoginPage({ userRole, setUserRole }) {
             formData.email,
             formData.password
           );
+          const userDetails = await getUserByEmail(formData.email);
+          setUser(userDetails.data[0]);
         } else {
           await createUserWithEmailAndPassword(
             auth,
             formData.email,
             formData.password
           );
+          const userCreated = await createUser(formData);
+          setUser(userCreated.data);
         }
-        setUserRole(formData.role);
         navigate("/dashboard");
       } catch (error) {
         console.error("Auth error:", error);
@@ -217,33 +227,6 @@ export default function LoginPage({ userRole, setUserRole }) {
                     </div>
                   </div>
                   <div>
-                    <label
-                      htmlFor="zipCode"
-                      className="block text-sm font-medium text-gray-700 font-poppins"
-                    >
-                      Zip Code
-                    </label>
-                    <input
-                      type="text"
-                      id="zipCode"
-                      name="zipCode"
-                      value={formData.zipCode}
-                      onChange={handleChange}
-                      onBlur={handleBlur}
-                      placeholder="Enter your zip code"
-                      className={`mt-1 block w-full px-3 py-2 border ${
-                        touched.zipCode && errors.zipCode
-                          ? "border-red-500"
-                          : "border-orange-200"
-                      } rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-300 bg-white`}
-                    />
-                    {touched.zipCode && errors.zipCode && (
-                      <p className="text-red-500 text-sm mt-1">
-                        {errors.zipCode}
-                      </p>
-                    )}
-                  </div>
-                  <div>
                     <label className="block text-sm font-medium text-gray-700 font-poppins mb-2">
                       Role
                     </label>
@@ -276,6 +259,35 @@ export default function LoginPage({ userRole, setUserRole }) {
                       </label>
                     </div>
                   </div>
+                  {formData.role === ROLES.CUSTOMER && (
+                    <div>
+                      <label
+                        htmlFor="zipCode"
+                        className="block text-sm font-medium text-gray-700 font-poppins"
+                      >
+                        Zip Code
+                      </label>
+                      <input
+                        type="text"
+                        id="zipCode"
+                        name="zipCode"
+                        value={formData.zipCode}
+                        onChange={handleChange}
+                        onBlur={handleBlur}
+                        placeholder="Enter your zip code"
+                        className={`mt-1 block w-full px-3 py-2 border ${
+                          touched.zipCode && errors.zipCode
+                            ? "border-red-500"
+                            : "border-orange-200"
+                        } rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-300 bg-white`}
+                      />
+                      {touched.zipCode && errors.zipCode && (
+                        <p className="text-red-500 text-sm mt-1">
+                          {errors.zipCode}
+                        </p>
+                      )}
+                    </div>
+                  )}
                 </>
               )}
               <div>
@@ -342,48 +354,69 @@ export default function LoginPage({ userRole, setUserRole }) {
                 )}
               </div>
               {!isLogin && (
-                <div>
-                  <label
-                    htmlFor="confirmPassword"
-                    className="block text-sm font-medium text-gray-700 font-poppins"
-                  >
-                    Confirm Password
-                  </label>
-                  <div className="relative">
-                    <input
-                      type={showConfirmPassword ? "text" : "password"}
-                      id="confirmPassword"
-                      name="confirmPassword"
-                      value={formData.confirmPassword}
-                      onChange={handleChange}
-                      onBlur={handleBlur}
-                      placeholder="Confirm your password"
-                      className={`mt-1 block w-full px-3 py-2 pr-10 border ${
-                        touched.confirmPassword && errors.confirmPassword
-                          ? "border-red-500"
-                          : "border-orange-200"
-                      } rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-300 bg-white`}
-                    />
-                    <button
-                      type="button"
-                      onClick={() =>
-                        setShowConfirmPassword(!showConfirmPassword)
-                      }
-                      className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-600"
+                <>
+                  <div>
+                    <label
+                      htmlFor="confirmPassword"
+                      className="block text-sm font-medium text-gray-700 font-poppins"
                     >
-                      {showConfirmPassword ? (
-                        <VisibilityOff className="h-5 w-5" />
-                      ) : (
-                        <Visibility className="h-5 w-5" />
-                      )}
-                    </button>
+                      Confirm Password
+                    </label>
+                    <div className="relative">
+                      <input
+                        type={showConfirmPassword ? "text" : "password"}
+                        id="confirmPassword"
+                        name="confirmPassword"
+                        value={formData.confirmPassword}
+                        onChange={handleChange}
+                        onBlur={handleBlur}
+                        placeholder="Confirm your password"
+                        className={`mt-1 block w-full px-3 py-2 pr-10 border ${
+                          touched.confirmPassword && errors.confirmPassword
+                            ? "border-red-500"
+                            : "border-orange-200"
+                        } rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-300 bg-white`}
+                      />
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setShowConfirmPassword(!showConfirmPassword)
+                        }
+                        className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-600"
+                      >
+                        {showConfirmPassword ? (
+                          <VisibilityOff className="h-5 w-5" />
+                        ) : (
+                          <Visibility className="h-5 w-5" />
+                        )}
+                      </button>
+                    </div>
+                    {touched.confirmPassword && errors.confirmPassword && (
+                      <p className="text-red-500 text-sm mt-1">
+                        {errors.confirmPassword}
+                      </p>
+                    )}
                   </div>
-                  {touched.confirmPassword && errors.confirmPassword && (
-                    <p className="text-red-500 text-sm mt-1">
-                      {errors.confirmPassword}
-                    </p>
-                  )}
-                </div>
+                  <div>
+                    <label
+                      htmlFor="photo"
+                      className="block text-sm font-medium text-gray-700 font-poppins"
+                    >
+                      Photo URL
+                    </label>
+                    <input
+                      type="text"
+                      id="photo"
+                      name="photo"
+                      value={formData.photo}
+                      onChange={handleChange}
+                      placeholder="Enter your photo url"
+                      className={`mt-1 block w-full px-3 py-2 border
+                         border-orange-200 rounded-md shadow-sm focus:outline-none focus:ring-2
+                          focus:ring-orange-300 bg-white`}
+                    />
+                  </div>
+                </>
               )}
               <div>
                 <button

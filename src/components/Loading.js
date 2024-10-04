@@ -1,9 +1,9 @@
 import React from "react";
-import { CircularProgress } from "@mui/material"; // Using Material UI Circular Progress for the loader
+import { CircularProgress } from "@mui/material";
 
 export default function Loading() {
   return (
-    <div className="flex flex-col items-center justify-center h-screen bg-orange-50">
+    <div className="flex flex-col items-center justify-center h-screen bg-orange-50 z-50">
       <div className="flex flex-col items-center">
         <CircularProgress
           size={60}

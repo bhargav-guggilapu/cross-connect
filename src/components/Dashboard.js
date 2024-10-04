@@ -1,21 +1,15 @@
 import React, { useEffect, useState } from "react";
-import { Chat, ContentCopy, Edit, TrackChanges } from "@mui/icons-material";
+import {
+  Chat,
+  ContentCopy,
+  Edit,
+  Search,
+  TrackChanges,
+} from "@mui/icons-material";
 import Button from "./Helpers/Button";
 import { COLORS, ROLES } from "./Constants/Constants";
 import AgentDashboard from "./AgentDashboard";
-// import useApi from "../hooks/useApi";
-// import { getOrders } from "../services/Api";
-
-// Random agent data
-const agentData = {
-  name: "John Doe",
-  email: "john.doe@example.com",
-  phoneNumber: "(555) 123-4567",
-  addressLine1: "123 Main St",
-  city: "Anytown",
-  state: "CA",
-  zip: "12345",
-};
+import { useNavigate } from "react-router-dom";
 
 const tableData = {
   Delivered: [
@@ -59,13 +53,30 @@ const tableData = {
   ],
 };
 
-export default function Dashboard({ userRole }) {
+export default function Dashboard({ user }) {
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("Delivered");
   const [localDate, setLocalDate] = useState();
-  // const { data, loading, error } = useApi(getOrders);
+
+  const agentData = user.selectedAgent
+    ? {
+        name: user.selectedAgent.firstName + " " + user.selectedAgent.lastName,
+        email: user.selectedAgent.email,
+        phoneNumber: user.selectedAgent.phoneNumber,
+        addressLine1: user.selectedAgent.address.addressLine1,
+        addressLine2: user.selectedAgent.address.addressLine2,
+        city: user.selectedAgent.address.city,
+        state: user.selectedAgent.address.state,
+        zip: user.selectedAgent.address.zipCode,
+      }
+    : null;
 
   useEffect(() => {
-    getUsaTime();
+    if (!user.addressDetails && !user.phoneNumber) {
+      navigate("/account");
+    }
+
+    getTime();
 
     const intervalId = setInterval(() => {
       setLocalDate((prevTime) => {
@@ -76,7 +87,7 @@ export default function Dashboard({ userRole }) {
     }, 60000);
 
     return () => clearInterval(intervalId);
-  }, []);
+  }, [user, navigate]);
 
   const handleCopyClick = (text) => {
     navigator.clipboard.writeText(text).then(() => {
@@ -144,9 +155,9 @@ export default function Dashboard({ userRole }) {
       .join("");
   };
 
-  const getUsaTime = async (city, country) => {
+  const getTime = async (city, country) => {
     // const response = await fetch(
-    //   `https://api.ipgeolocation.io/timezone?apiKey=${process.env.TIME_ZONE_API_KEY}&location=${city}, ${country}`
+    //   `https://api.ipgeolocation.io/timezone?apiKey=${process.env.REACT_APP_TIME_ZONE_API_KEY}&location=${city}, ${country}`
     // );
     // const data = await response.json();
     // const initialTime = new Date(data.date_time_txt);
@@ -164,92 +175,137 @@ export default function Dashboard({ userRole }) {
         Dashboard
       </h1>
 
-      {userRole === ROLES.AGENT ? (
+      {user.role === ROLES.AGENT ? (
         <AgentDashboard />
       ) : (
         <div>
-          <div className="mb-6 p-6 bg-white rounded-lg shadow-md border border-orange-200">
-            <div className="flex justify-between items-center mb-4">
-              <h2
-                className="text-xl font-bold text-orange-800"
-                style={{ fontFamily: "Rajdhani, sans-serif" }}
-              >
-                Agent Details
-              </h2>
-              <div className="flex items-center space-x-4">
-                <span className="text-sm text-gray-600">
-                  Local time:{" "}
-                  {localDate
-                    ? localDate.toLocaleTimeString("en-US", {
-                        hour12: true,
-                        hour: "numeric",
-                        minute: "numeric",
-                      })
-                    : "Fetching..."}
-                </span>
+          {agentData ? (
+            <div className="mb-6 p-6 bg-white rounded-lg shadow-md border border-orange-200">
+              <div className="flex justify-between items-center mb-4">
+                <h2
+                  className="text-xl font-bold text-orange-800"
+                  style={{ fontFamily: "Rajdhani, sans-serif" }}
+                >
+                  Agent Details
+                </h2>
+                <div className="flex items-center space-x-4">
+                  <span className="text-sm text-gray-600">
+                    Local time:{" "}
+                    {localDate
+                      ? localDate.toLocaleTimeString("en-US", {
+                          timeZone: "Asia/Kolkata",
+                          hour12: true,
+                          hour: "numeric",
+                          minute: "numeric",
+                        })
+                      : "Fetching..."}
+                  </span>
+                  <Button
+                    icon={Chat}
+                    bgColor={COLORS.GREEN_600}
+                    // onClick={handleChangeAgent}
+                    text="Chat"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                {["Name", "Email", "Phone Number"].map((field) => (
+                  <div key={field} className="flex flex-col">
+                    <label
+                      className="text-sm text-gray-600 mb-1"
+                      style={{ fontFamily: "Poppins, sans-serif" }}
+                    >
+                      {field}
+                    </label>
+                    <div className="relative">
+                      <input
+                        type="text"
+                        className="w-full p-2 pr-8 border border-orange-200 rounded focus:outline-none focus:ring-2 focus:ring-orange-300 bg-gray-100"
+                        value={agentData[toCamelCase(field)]}
+                        readOnly
+                      />
+                      <ContentCopy
+                        className="absolute right-2 top-1/2 transform -translate-y-1/2 w-5 h-5 text-orange-400 cursor-pointer hover:text-orange-600"
+                        onClick={() =>
+                          handleCopyClick(agentData[toCamelCase(field)])
+                        }
+                      />
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                {["Address Line 1", "Address Line 2"].map((field) => (
+                  <div key={field} className="flex flex-col">
+                    <label
+                      className="text-sm text-gray-600 mb-1"
+                      style={{ fontFamily: "Poppins, sans-serif" }}
+                    >
+                      {field}
+                    </label>
+                    <div className="relative">
+                      <input
+                        type="text"
+                        className="w-full p-2 pr-8 border border-orange-200 rounded focus:outline-none focus:ring-2 focus:ring-orange-300 bg-gray-100"
+                        value={agentData[toCamelCase(field)]}
+                        readOnly
+                      />
+                      <ContentCopy
+                        className="absolute right-2 top-1/2 transform -translate-y-1/2 w-5 h-5 text-orange-400 cursor-pointer hover:text-orange-600"
+                        onClick={() =>
+                          handleCopyClick(agentData[toCamelCase(field)])
+                        }
+                      />
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                {["City", "State", "Zip"].map((field) => (
+                  <div key={field} className="flex flex-col">
+                    <label
+                      className="text-sm text-gray-600 mb-1"
+                      style={{ fontFamily: "Poppins, sans-serif" }}
+                    >
+                      {field}
+                    </label>
+                    <div className="relative">
+                      <input
+                        type="text"
+                        className="w-full p-2 pr-8 border border-orange-200 rounded focus:outline-none focus:ring-2 focus:ring-orange-300 bg-gray-100"
+                        value={agentData[toCamelCase(field)]}
+                        readOnly
+                      />
+                      <ContentCopy
+                        className="absolute right-2 top-1/2 transform -translate-y-1/2 w-5 h-5 text-orange-400 cursor-pointer hover:text-orange-600"
+                        onClick={() =>
+                          handleCopyClick(agentData[toCamelCase(field)])
+                        }
+                      />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ) : (
+            <div className="mb-6 p-6 bg-white rounded-lg shadow-md border border-orange-200">
+              <div className="flex flex-col justify-center items-center">
+                <h2 className="text-xl mb-4">
+                  Find an Agent at zip code:{" "}
+                  <span className="text-orange-800">{user.zipCode}</span>
+                </h2>
                 <Button
-                  icon={Chat}
+                  icon={Search}
                   bgColor={COLORS.GREEN_600}
-                  // onClick={handleChangeAgent}
-                  text="Chat"
+                  onClick={() => navigate("/agent")}
+                  text="Show Agents"
                 />
               </div>
             </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-              {["Name", "Email", "Phone Number"].map((field) => (
-                <div key={field} className="flex flex-col">
-                  <label
-                    className="text-sm text-gray-600 mb-1"
-                    style={{ fontFamily: "Poppins, sans-serif" }}
-                  >
-                    {field}
-                  </label>
-                  <div className="relative">
-                    <input
-                      type="text"
-                      className="w-full p-2 pr-8 border border-orange-200 rounded focus:outline-none focus:ring-2 focus:ring-orange-300 bg-gray-100"
-                      value={agentData[toCamelCase(field)]}
-                      readOnly
-                    />
-                    <ContentCopy
-                      className="absolute right-2 top-1/2 transform -translate-y-1/2 w-5 h-5 text-orange-400 cursor-pointer hover:text-orange-600"
-                      onClick={() =>
-                        handleCopyClick(agentData[toCamelCase(field)])
-                      }
-                    />
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-              {["Address Line 1", "City", "State", "Zip"].map((field) => (
-                <div key={field} className="flex flex-col">
-                  <label
-                    className="text-sm text-gray-600 mb-1"
-                    style={{ fontFamily: "Poppins, sans-serif" }}
-                  >
-                    {field}
-                  </label>
-                  <div className="relative">
-                    <input
-                      type="text"
-                      className="w-full p-2 pr-8 border border-orange-200 rounded focus:outline-none focus:ring-2 focus:ring-orange-300 bg-gray-100"
-                      value={agentData[toCamelCase(field)]}
-                      readOnly
-                    />
-                    <ContentCopy
-                      className="absolute right-2 top-1/2 transform -translate-y-1/2 w-5 h-5 text-orange-400 cursor-pointer hover:text-orange-600"
-                      onClick={() =>
-                        handleCopyClick(agentData[toCamelCase(field)])
-                      }
-                    />
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
+          )}
 
           {/* Agent Details Table */}
           <div className="p-6 bg-white rounded-lg shadow-md border border-orange-200">
