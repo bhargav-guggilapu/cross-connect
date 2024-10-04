@@ -8,12 +8,7 @@ import {
 } from "@mui/material";
 import Button from "./Helpers/Button";
 import { COLORS } from "./Constants/Constants";
-import {
-  CheckCircle,
-  Close,
-  AddShoppingCart,
-  Edit,
-} from "@mui/icons-material";
+import { CheckCircle, Close, AddShoppingCart, Edit } from "@mui/icons-material";
 
 function ItemDetails({
   isOpen,
@@ -74,7 +69,7 @@ function ItemDetails({
         },
       }}
     >
-      <DialogTitle id="dialog-title">
+      <DialogTitle id={title + "_id"}>
         <span
           className="text-2xl font-bold text-orange-800 mb-4 mt-4"
           style={{ fontFamily: "Rajdhani, sans-serif" }}

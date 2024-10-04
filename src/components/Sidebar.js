@@ -26,9 +26,9 @@ const agentMenuItems = [
   { name: "Account", icon: AccountCircle, path: "/account" },
 ];
 
-export default function Sidebar({ userRole }) {
+export default function Sidebar({ user }) {
   const location = useLocation();
-  const menuItems = userRole === ROLES.AGENT ? agentMenuItems : customerMenuItems;
+  const menuItems = user.role === ROLES.AGENT ? agentMenuItems : customerMenuItems;
 
   return (
     <div className="w-64 bg-white shadow-md overflow-y-auto">

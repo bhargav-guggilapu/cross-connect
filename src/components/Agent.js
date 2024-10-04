@@ -1,62 +1,85 @@
 import { Chat, ConnectWithoutContact, SwapHoriz } from "@mui/icons-material";
 import { Avatar } from "@mui/material";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Button from "./Helpers/Button";
 import { COLORS } from "./Constants/Constants";
+import { getAgentsByZipCode, updateUser } from "../services/Api";
+import Loading from "./Loading";
 
-// Mock data for agents
-const agents = [
-  {
-    id: 1,
-    name: "John Doe",
-    email: "john.doe@example.com",
-    phone: "(555) 123-4567",
-    address: "123 Main St",
-    city: "Anytown",
-    state: "CA",
-    zip: "12345",
-    ordersDelivered: 150,
-    rating: 4.8,
-    photo: "/placeholder.svg?height=200&width=200",
-  },
-  {
-    id: 2,
-    name: "Jane Smith",
-    email: "jane.smith@example.com",
-    phone: "(555) 987-6543",
-    address: "456 Elm St",
-    city: "Somewhere",
-    state: "NY",
-    zip: "67890",
-    ordersDelivered: 120,
-    rating: 4.7,
-    photo: "/placeholder.svg?height=200&width=200",
-  },
-  {
-    id: 3,
-    name: "Mike Johnson",
-    email: "mike.johnson@example.com",
-    phone: "(555) 246-8135",
-    address: "789 Oak St",
-    city: "Elsewhere",
-    state: "TX",
-    zip: "54321",
-    ordersDelivered: 200,
-    rating: 4.9,
-    photo: "/placeholder.svg?height=200&width=200",
-  },
-];
+const formatAgentDetails = (givenUser) => {
+  return {
+    id: givenUser._id,
+    name: givenUser.firstName + " " + givenUser.lastName,
+    email: givenUser.email,
+    phone: givenUser.phoneNumber,
+    address: `${givenUser.address?.addressLine1} ${
+      givenUser.address?.addressLine2
+        ? ", " + givenUser.address?.addressLine2
+        : ""
+    }`,
+    city: givenUser.address?.city,
+    state: givenUser.address?.state,
+    zip: givenUser.address?.zipCode,
+    ordersDelivered: givenUser.ordersDelivered || "XXX",
+    rating: givenUser.rating || "XXX",
+    photo: givenUser.photo,
+  };
+};
 
-export default function Agent() {
-  const [selectedAgent, setSelectedAgent] = useState(null);
+export default function Agent({ user, setUser }) {
+  const [loading, setLoading] = useState(true);
+  const [selectedAgent, setSelectedAgent] = useState(
+    user.selectedAgent ? formatAgentDetails(user.selectedAgent) : null
+  );
+  const [agents, setAgents] = useState([]);
 
-  const handleConnect = (agent) => {
-    setSelectedAgent(agent);
+  useEffect(() => {
+    const populateAgents = async () => {
+      try {
+        const userDetails = await getAgentsByZipCode(user.zipCode);
+        setAgents(
+          userDetails.data.map((user) => {
+            return formatAgentDetails(user);
+          })
+        );
+      } catch (error) {
+        console.error("Error fetching user details:", error);
+      }
+      setLoading(false);
+    };
+
+    if (!selectedAgent) {
+      populateAgents();
+    } else {
+      setLoading(false);
+    }
+  }, [user, selectedAgent]);
+
+  const handleConnect = async (agent) => {
+    setLoading(true);
+    const updatedUser = await updateUser({
+      ...user,
+      selectedAgent: agent.id,
+    });
+    setUser(updatedUser.data);
+    setSelectedAgent(formatAgentDetails(updatedUser.data.selectedAgent));
+    setLoading(false);
   };
 
-  const handleChangeAgent = () => {
+  const handleChangeAgent = async () => {
+    setLoading(true);
+    const updatedUser = await updateUser({
+      ...user,
+      selectedAgent: null,
+    });
+    setUser(updatedUser.data);
     setSelectedAgent(null);
+    setLoading(false);
   };
+
+  if (loading) {
+    return <Loading />;
+  }
 
   if (selectedAgent) {
     return (
@@ -146,41 +169,53 @@ export default function Agent() {
         Agents List
       </h1>
       <div className="space-y-4">
-        {agents.map((agent) => (
-          <div
-            key={agent.id}
-            className="flex items-center justify-between bg-white p-4 rounded-lg shadow-md border border-orange-200"
-          >
-            <div className="flex items-center space-x-4">
-              <Avatar
-                alt={agent.name}
-                src={agent.photo}
-                className="w-10 h-10 rounded-full border-2 border-white"
-              />
-              <div>
-                <h2
-                  className="font-semibold text-lg text-orange-800"
-                  style={{ fontFamily: "Rajdhani, sans-serif" }}
-                >
-                  {agent.name}
-                </h2>
-                <p
-                  className="text-sm text-gray-600"
-                  style={{ fontFamily: "Poppins, sans-serif" }}
-                >
-                  Orders Delivered: {agent.ordersDelivered} | Rating:{" "}
-                  {agent.rating}
-                </p>
+        {agents.length > 0 ? (
+          agents.map((agent) => (
+            <div
+              key={agent.id}
+              className="flex items-center justify-between bg-white p-4 rounded-lg shadow-md border border-orange-200"
+            >
+              <div className="flex items-center space-x-4">
+                <Avatar
+                  alt={agent.name}
+                  src={agent.photo}
+                  className="w-10 h-10 rounded-full border-2 border-white"
+                />
+                <div>
+                  <h2
+                    className="font-semibold text-lg text-orange-800"
+                    style={{ fontFamily: "Rajdhani, sans-serif" }}
+                  >
+                    {agent.name}
+                  </h2>
+                  <p
+                    className="text-sm text-gray-600"
+                    style={{ fontFamily: "Poppins, sans-serif" }}
+                  >
+                    Orders Delivered: {agent.ordersDelivered} | Rating:{" "}
+                    {agent.rating}
+                  </p>
+                </div>
               </div>
+              <Button
+                icon={ConnectWithoutContact}
+                bgColor={COLORS.ORANGE_500}
+                onClick={() => handleConnect(agent)}
+                text="Connect"
+              />
             </div>
-            <Button
-              icon={ConnectWithoutContact}
-              bgColor={COLORS.ORANGE_500}
-              onClick={() => handleConnect(agent)}
-              text="Connect"
-            />
+          ))
+        ) : (
+          <div className="mb-6 p-6 bg-white rounded-lg shadow-md border border-orange-200">
+            <div className="flex flex-col justify-center items-center">
+              <h2 className="text-xl mb-4">
+                No agents found near zip code:{" "}
+                <span className="text-orange-800">{user.zipCode}</span>
+              </h2>
+              <h2 className="text-gray-500">Please try different zip code</h2>
+            </div>
           </div>
-        ))}
+        )}
       </div>
     </div>
   );
