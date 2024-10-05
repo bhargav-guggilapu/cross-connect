@@ -139,7 +139,6 @@ export default function LoginPage({ setUser }) {
 
   return (
     <div className="flex h-screen">
-      {/* Left side */}
       <div className="hidden lg:flex lg:w-1/2  items-center justify-center relative">
         <div
           className="absolute inset-0 bg-cover bg-center"
@@ -160,7 +159,6 @@ export default function LoginPage({ setUser }) {
         </div>
       </div>
 
-      {/* Right side */}
       <div className="w-full lg:w-1/2 flex flex-col">
         <div className="flex-grow flex items-center justify-center p-6">
           <div className="max-w-md w-full bg-white rounded-lg shadow-md border border-orange-200 p-8">

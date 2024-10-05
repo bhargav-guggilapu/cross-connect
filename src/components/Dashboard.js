@@ -307,7 +307,6 @@ export default function Dashboard({ user }) {
             </div>
           )}
 
-          {/* Agent Details Table */}
           <div className="p-6 bg-white rounded-lg shadow-md border border-orange-200">
             <h2
               className="text-xl font-bold mb-4 text-orange-800"
