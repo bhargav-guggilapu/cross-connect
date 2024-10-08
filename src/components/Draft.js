@@ -1,36 +1,78 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import EditIcon from "@mui/icons-material/Edit";
 import { Add, AddShoppingCart, Clear, Edit } from "@mui/icons-material";
 import Button from "./Helpers/Button";
-import { COLORS } from "./Constants/Constants";
+import {
+  AGENT_STATUS,
+  ALERTS,
+  COLORS,
+  CUSTOMER_STATUS,
+  ORDER_STATUS,
+  UNITS,
+} from "./Constants/Constants";
+import { createOrder, getOrder, updateOrder } from "../services/Api";
+import Loading from "./Loading";
+import { formatQuantityUnit } from "./Helpers/staticFunctions";
+import { useNavigate } from "react-router-dom";
+import { useSnackbar } from "./Helpers/SnackbarContext";
 
-export default function Draft() {
-  const [draftItems, setDraftItems] = useState([
-    {
-      id: 1,
-      name: "T-shirt",
-      description: "Cotton, size L, white",
-      quantity: 3,
-      storeName: "H&M",
-    },
-    {
-      id: 2,
-      name: "Jeans",
-      description: "Denim, size 32, slim fit",
-      quantity: 1,
-      storeName: "Levi's",
-    },
-  ]);
+export default function Draft({ user }) {
+  const navigate = useNavigate();
+  const showSnackbar = useSnackbar();
+
+  const [isLoading, setIsLoading] = useState(false);
+  const [order, setOrder] = useState(null);
   const [newItem, setNewItem] = useState({
     name: "",
     description: "",
-    quantity: 0,
+    quantity: "",
+    unit: "Piece(s)",
     storeName: "",
   });
   const [editingId, setEditingId] = useState(null);
   const [errors, setErrors] = useState({});
   const [touched, setTouched] = useState({});
+  const [quantityUnitFocused, setQuantityUnitFocused] = useState(false);
+
+  useEffect(() => {
+    const fetchOrder = async () => {
+      setIsLoading(true);
+      try {
+        const order = await getOrder({
+          customer: user._id,
+          agent: user.selectedAgent._id,
+          customerStatus: CUSTOMER_STATUS.DRAFT,
+          orderStatus: ORDER_STATUS.ACTIVE,
+        });
+
+        if (order.data.length === 1) {
+          setOrder(order.data[0]);
+        }
+      } catch (error) {
+        console.error("Error fetching order:", error);
+      }
+      setIsLoading(false);
+    };
+
+    fetchOrder();
+  }, [user]);
+
+  const updateItemsInOrder = async (items) => {
+    setIsLoading(true);
+    const updatedOrder = await updateOrder(
+      { items },
+      {
+        customer: user._id,
+        agent: user.selectedAgent._id,
+        customerStatus: CUSTOMER_STATUS.DRAFT,
+        orderStatus: ORDER_STATUS.ACTIVE,
+      }
+    );
+
+    setOrder(updatedOrder.data);
+    setIsLoading(false);
+  };
 
   const validateItem = (item) => {
     let newErrors = {};
@@ -43,42 +85,54 @@ export default function Draft() {
     return newErrors;
   };
 
-  const addItem = () => {
+  const addItem = async () => {
     const newErrors = validateItem(newItem);
     setErrors(newErrors);
     setTouched({ name: true, quantity: true });
 
     if (Object.keys(newErrors).length === 0) {
       if (editingId !== null) {
-        setDraftItems(
-          draftItems.map((item) =>
-            item.id === editingId ? { ...newItem, id: editingId } : item
+        await updateItemsInOrder(
+          order.items.map((item) =>
+            item._id === editingId ? { ...newItem, _id: editingId } : item
           )
         );
         setEditingId(null);
       } else {
-        setDraftItems([...draftItems, { ...newItem, id: Date.now() }]);
+        await updateItemsInOrder([...order.items, { ...newItem }]);
       }
-      setNewItem({ name: "", description: "", quantity: 0, storeName: "" });
+      setNewItem({
+        name: "",
+        description: "",
+        quantity: "",
+        unit: "Piece(s)",
+        storeName: "",
+      });
       setTouched({});
     }
   };
 
   const editItem = (id) => {
-    const itemToEdit = draftItems.find((item) => item.id === id);
+    const itemToEdit = order.items.find((item) => item._id === id);
     setNewItem({ ...itemToEdit });
     setEditingId(id);
     setErrors({});
     setTouched({});
   };
 
-  const deleteItem = (id) => {
-    setDraftItems(draftItems.filter((item) => item.id !== id));
+  const deleteItem = async (id) => {
+    await updateItemsInOrder(order.items.filter((item) => item._id !== id));
   };
 
-  const clearTable = () => {
-    setDraftItems([]);
-    setNewItem({ name: "", description: "", quantity: 0, storeName: "" });
+  const clearTable = async () => {
+    await updateItemsInOrder([]);
+    setNewItem({
+      name: "",
+      description: "",
+      quantity: "",
+      unit: "Piece(s)",
+      storeName: "",
+    });
     setErrors({});
     setTouched({});
   };
@@ -87,13 +141,17 @@ export default function Draft() {
     const { name, value } = e.target;
     setNewItem((prev) => ({
       ...prev,
-      [name]: name === "quantity" ? parseInt(value) || 0 : value,
+      [name]: name === "quantity" ? parseInt(value) || "" : value,
     }));
     setTouched((prev) => ({ ...prev, [name]: true }));
     setErrors((prev) => {
       const newErrors = validateItem({ ...newItem, [name]: value });
       return { ...prev, [name]: newErrors[name] };
     });
+  };
+
+  const handleFocus = () => {
+    setQuantityUnitFocused(true);
   };
 
   const handleBlur = (e) => {
@@ -103,7 +161,48 @@ export default function Draft() {
       const newErrors = validateItem(newItem);
       return { ...prev, [name]: newErrors[name] };
     });
+    setQuantityUnitFocused(false);
   };
+
+  const handlePlaceOrder = async () => {
+    if (order.items.length > 0) {
+      setIsLoading(true);
+
+      await updateOrder(
+        { customerStatus: CUSTOMER_STATUS.IN_PROGRESS },
+        {
+          customer: user._id,
+          agent: user.selectedAgent._id,
+          customerStatus: CUSTOMER_STATUS.DRAFT,
+          orderStatus: ORDER_STATUS.ACTIVE,
+        }
+      );
+
+      setIsLoading(false);
+      navigate("/in-progress");
+    } else {
+      showSnackbar("Can't place order, your draft is empty.", ALERTS.ERROR);
+    }
+  };
+
+  const startNewOrder = async () => {
+    setIsLoading(true);
+
+    const createdOrder = await createOrder({
+      customer: user._id,
+      agent: user.selectedAgent._id,
+      agentStatus: AGENT_STATUS.ORDERED,
+      customerStatus: CUSTOMER_STATUS.DRAFT,
+      orderStatus: ORDER_STATUS.ACTIVE,
+    });
+
+    setOrder(createdOrder.data);
+    setIsLoading(false);
+  };
+
+  if (isLoading) {
+    return <Loading />;
+  }
 
   return (
     <div className="p-6 bg-orange-50">
@@ -118,7 +217,7 @@ export default function Draft() {
           <Button
             icon={AddShoppingCart}
             bgColor={COLORS.GREEN_600}
-            // onClick={handleChangeAgent}
+            onClick={handlePlaceOrder}
             text="Place Order"
           />
           <Button
@@ -130,49 +229,73 @@ export default function Draft() {
         </div>
       </div>
 
-      <div className="bg-white rounded-lg shadow overflow-hidden">
-        <table className="w-full bg-white shadow-md rounded-lg overflow-hidden">
-          <thead className="bg-orange-500 text-white">
-            <tr>
-              <th className="p-3 text-left">Name</th>
-              <th className="p-3 text-left">Description</th>
-              <th className="p-3 text-left">Quantity</th>
-              <th className="p-3 text-left">Store Name</th>
-              <th className="p-3 text-left"></th>
-            </tr>
-          </thead>
-          <tbody>
-            {draftItems.map((item, index) => (
-              <tr
-                key={item.id}
-                className={index % 2 === 0 ? "bg-orange-100" : ""}
-              >
-                <td className="p-3">{item.name}</td>
-                <td className="p-3">{item.description}</td>
-                <td className="p-3">{item.quantity}</td>
-                <td className="p-3">{item.storeName}</td>
-                <td className="p-3">
-                  <div className="flex">
-                    <Button
-                      icon={EditIcon}
-                      bgColor={COLORS.ORANGE_500}
-                      buttonStyles="w-4 h-4"
-                      customStyles="mr-2"
-                      onClick={() => editItem(item.id)}
-                    />
-                    <Button
-                      icon={DeleteOutlineIcon}
-                      bgColor={COLORS.RED_500}
-                      buttonStyles="w-4 h-4"
-                      onClick={() => deleteItem(item.id)}
-                    />
-                  </div>
-                </td>
+      {order ? (
+        <div className="bg-white rounded-lg shadow overflow-hidden">
+          <table className="w-full bg-white shadow-md rounded-lg overflow-hidden">
+            <thead className="bg-orange-500 text-white">
+              <tr>
+                <th className="p-3 text-left">Name</th>
+                <th className="p-3 text-left">Description</th>
+                <th className="p-3 text-left">Quantity</th>
+                <th className="p-3 text-left">Store Name</th>
+                <th className="p-3 text-left"></th>
               </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+            </thead>
+            <tbody>
+              {order &&
+                order.items.map((item, index) => (
+                  <tr
+                    key={item._id}
+                    className={index % 2 === 0 ? "bg-orange-100" : ""}
+                  >
+                    <td className="p-3">{item.name}</td>
+                    <td className="p-3">{item.description}</td>
+                    <td className="p-3">{`${formatQuantityUnit(
+                      item.quantity,
+                      item.unit
+                    )}`}</td>
+                    <td className="p-3">{item.storeName}</td>
+                    <td className="p-3">
+                      <div className="flex">
+                        <Button
+                          icon={EditIcon}
+                          bgColor={COLORS.ORANGE_500}
+                          buttonStyles="w-4 h-4"
+                          customStyles="mr-2"
+                          onClick={() => editItem(item._id)}
+                        />
+                        <Button
+                          icon={DeleteOutlineIcon}
+                          bgColor={COLORS.RED_500}
+                          buttonStyles="w-4 h-4"
+                          onClick={() => deleteItem(item._id)}
+                        />
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+            </tbody>
+          </table>
+        </div>
+      ) : (
+        <div className="mb-6 p-6 bg-white rounded-lg shadow-md border border-orange-200">
+          <div className="flex flex-col justify-center items-center">
+            <h2 className="text-xl mb-4">
+              You have an In Progress order with
+              <span className="text-orange-800">
+                {" "}
+                {user.selectedAgent.firstName}
+              </span>
+              .
+            </h2>
+            <Button
+              bgColor={COLORS.GREEN_600}
+              onClick={startNewOrder}
+              text="Start New Order"
+            />
+          </div>
+        </div>
+      )}
 
       <div className="mt-8 grid grid-cols-5 gap-4">
         <div className="flex flex-col h-[74px]">
@@ -204,19 +327,44 @@ export default function Draft() {
           />
         </div>
         <div className="flex flex-col h-[74px]">
-          <input
-            type="number"
-            name="quantity"
-            placeholder="Quantity"
-            className={`w-full p-2 pr-8 border ${
-              touched.quantity && errors.quantity
-                ? "border-red-500"
-                : "border-orange-200"
-            } rounded focus:outline-none focus:ring-2 focus:ring-orange-300`}
-            value={newItem.quantity}
-            onChange={handleInputChange}
-            onBlur={handleBlur}
-          />
+          <div
+            className={`flex ${
+              quantityUnitFocused ? "ring-2 ring-orange-300" : ""
+            } rounded-md`}
+          >
+            <input
+              type="number"
+              name="quantity"
+              placeholder="Quantity"
+              className={`w-2/3 p-2 pr-8 border-t border-b border-l ${
+                touched.quantity && errors.quantity
+                  ? "border-red-500"
+                  : "border-orange-200"
+              } rounded-l focus:outline-none`}
+              value={newItem.quantity}
+              onChange={handleInputChange}
+              onFocus={handleFocus}
+              onBlur={handleBlur}
+            />
+            <select
+              name="unit"
+              className={`w-1/3 p-2 border-t border-b border-r ${
+                touched.quantity && errors.quantity
+                  ? "border-red-500"
+                  : "border-orange-200"
+              } rounded-r focus:outline-none`}
+              value={newItem.unit}
+              onChange={handleInputChange}
+              onFocus={handleFocus}
+              onBlur={handleBlur}
+            >
+              {UNITS.map((unit) => (
+                <option key={unit} value={unit}>
+                  {unit}
+                </option>
+              ))}
+            </select>
+          </div>
           {touched.quantity && errors.quantity && (
             <p className="text-red-500 text-xs mt-1">{errors.quantity}</p>
           )}

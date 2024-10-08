@@ -10,7 +10,7 @@ import { updateUser } from "../services/Api";
 import Loading from "./Loading";
 
 export default function AccountPage({ user, setUser }) {
-  const [loading, setLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
   const [userData, setUserData] = useState({
     personalInfo: {
       firstName: user.firstName || "",
@@ -106,7 +106,7 @@ export default function AccountPage({ user, setUser }) {
     e.preventDefault();
 
     if (validateForm()) {
-      setLoading(true);
+      setIsLoading(true);
       const updatedUser = await updateUser({
         ...user,
         phoneNumber: userData.personalInfo.phoneNumber,
@@ -117,7 +117,7 @@ export default function AccountPage({ user, setUser }) {
       });
       setUser(updatedUser.data);
       setIsEditing(false);
-      setLoading(false);
+      setIsLoading(false);
     }
   };
 
@@ -210,7 +210,7 @@ export default function AccountPage({ user, setUser }) {
     </div>
   );
 
-  if (loading) {
+  if (isLoading) {
     return <Loading />;
   }
 

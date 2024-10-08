@@ -28,32 +28,10 @@ const inProgressItems = [
     orderDetails: {},
   },
   {
-    id: 1432,
-    orderId: "1432",
-    description:
-      "Agent confirmed your order, will let you know the items cost estimate in short period.",
-    currentStep: 2,
-    items: [
-      {
-        name: "T-shirt",
-        description: "Cotton, size L, white",
-        quantity: 3,
-        storeName: "H&M",
-      },
-      {
-        name: "Jeans",
-        description: "Denim, size 32, slim fit",
-        quantity: 1,
-        storeName: "Levi's",
-      },
-    ],
-    orderDetails: {},
-  },
-  {
     id: 343543,
     orderId: "343543",
     description: "",
-    currentStep: 3,
+    currentStep: 2,
     items: [
       {
         name: "Laptop",
@@ -75,7 +53,7 @@ const inProgressItems = [
     orderId: "343543",
     description:
       "Agent gathering items, will let you know the shipping cost estimate in short period.",
-    currentStep: 4,
+    currentStep: 3,
     items: [
       {
         name: "Laptop",
@@ -96,7 +74,7 @@ const inProgressItems = [
     id: 4545,
     orderId: "4545",
     description: "Waiting for Agent to confirm on your order.",
-    currentStep: 5,
+    currentStep: 4,
     items: [
       {
         name: "Laptop",
@@ -117,7 +95,7 @@ const inProgressItems = [
     id: 984374,
     orderId: "984374",
     description: "",
-    currentStep: 6,
+    currentStep: 5,
     items: [
       {
         name: "Laptop",
@@ -175,7 +153,7 @@ export default function InProgress() {
                 onClick={() => openDialog(item.items)}
                 text="Items"
               />
-              {[3, 5].includes(item.currentStep) && (
+              {[2, 4].includes(item.currentStep) && (
                 <Button
                   icon={Payment}
                   bgColor={COLORS.GREEN_600}
@@ -186,12 +164,12 @@ export default function InProgress() {
             </div>
           </div>
           <div className="my-6">
-            {![3, 5, 6].includes(item.currentStep) && (
+            {![2, 4, 5].includes(item.currentStep) && (
               <p className="text-lg text-gray-700 mb-10 text-center">
                 {item.description}
               </p>
             )}
-            {item.currentStep === 3 && (
+            {item.currentStep === 2 && (
               <div className="text-lg text-gray-700 mb-10 text-center">
                 <p>
                   Your total items cost is{" "}
@@ -204,7 +182,7 @@ export default function InProgress() {
                 </p>
               </div>
             )}
-            {item.currentStep === 5 && (
+            {item.currentStep === 4 && (
               <div className="text-lg text-gray-700 mb-10 text-center">
                 <p>
                   Your package weight is{" "}
@@ -223,7 +201,7 @@ export default function InProgress() {
                 </p>
               </div>
             )}
-            {item.currentStep === 6 && (
+            {item.currentStep === 5 && (
               <div className="text-lg text-gray-700 mb-10 text-center">
                 <p>
                   Your package has been shipped, your tracking id is{" "}

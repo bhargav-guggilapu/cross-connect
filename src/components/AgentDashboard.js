@@ -73,82 +73,7 @@ const tableDataAgent = {
       status: "Orders",
     },
   ],
-  Shippings: [
-    {
-      customerId: 101,
-      name: "Alice Johnson",
-      email: "alice.johnson@example.com",
-      itemsCost: "30",
-      weight: "2.5",
-      shippingCost: "55",
-      items: [
-        {
-          name: "Smartphone",
-          description: "Latest model with 128GB storage",
-          quantity: 1,
-          storeName: "Apple Store",
-        },
-        {
-          name: "Charger",
-          description: "Fast charging USB-C charger",
-          quantity: 1,
-          storeName: "Best Buy",
-        },
-      ],
-      status: "Shippings",
-      confirmed: false,
-    },
-    {
-      customerId: 102,
-      name: "Bob Smith",
-      email: "bob.smith@example.com",
-      itemsCost: "45",
-      weight: "3.0",
-      shippingCost: "70",
-      items: [
-        {
-          name: "Headphones",
-          description: "Noise-cancelling over-ear headphones",
-          quantity: 1,
-          storeName: "Amazon",
-        },
-        {
-          name: "Laptop Stand",
-          description: "Adjustable aluminum laptop stand",
-          quantity: 1,
-          storeName: "eBay",
-        },
-      ],
-      status: "Shippings",
-      confirmed: false,
-    },
-    {
-      customerId: 103,
-      name: "Charlie Brown",
-      email: "charlie.brown@example.com",
-      itemsCost: "34",
-      weight: "1.0",
-      shippingCost: "40",
-      items: [
-        {
-          name: "Tablet",
-          description: "10-inch display, 64GB storage",
-          quantity: 1,
-          storeName: "Walmart",
-          cost: 98.34,
-        },
-        {
-          name: "Bluetooth Keyboard",
-          description: "Compact wireless keyboard",
-          quantity: 1,
-          storeName: "Target",
-          cost: 4,
-        },
-      ],
-      status: "Shippings",
-      confirmed: false,
-    },
-  ],
+
   Confirm: [
     {
       customerId: 101,
@@ -208,6 +133,82 @@ const tableDataAgent = {
       weight: "1.0",
       shippingCost: "40",
       trackingId: "74637864783648368",
+      items: [
+        {
+          name: "Tablet",
+          description: "10-inch display, 64GB storage",
+          quantity: 1,
+          storeName: "Walmart",
+          cost: 98.34,
+        },
+        {
+          name: "Bluetooth Keyboard",
+          description: "Compact wireless keyboard",
+          quantity: 1,
+          storeName: "Target",
+          cost: 4,
+        },
+      ],
+      status: "Shippings",
+      confirmed: false,
+    },
+  ],
+  Shippings: [
+    {
+      customerId: 101,
+      name: "Alice Johnson",
+      email: "alice.johnson@example.com",
+      itemsCost: "30",
+      weight: "2.5",
+      shippingCost: "55",
+      items: [
+        {
+          name: "Smartphone",
+          description: "Latest model with 128GB storage",
+          quantity: 1,
+          storeName: "Apple Store",
+        },
+        {
+          name: "Charger",
+          description: "Fast charging USB-C charger",
+          quantity: 1,
+          storeName: "Best Buy",
+        },
+      ],
+      status: "Shippings",
+      confirmed: false,
+    },
+    {
+      customerId: 102,
+      name: "Bob Smith",
+      email: "bob.smith@example.com",
+      itemsCost: "45",
+      weight: "3.0",
+      shippingCost: "70",
+      items: [
+        {
+          name: "Headphones",
+          description: "Noise-cancelling over-ear headphones",
+          quantity: 1,
+          storeName: "Amazon",
+        },
+        {
+          name: "Laptop Stand",
+          description: "Adjustable aluminum laptop stand",
+          quantity: 1,
+          storeName: "eBay",
+        },
+      ],
+      status: "Shippings",
+      confirmed: false,
+    },
+    {
+      customerId: 103,
+      name: "Charlie Brown",
+      email: "charlie.brown@example.com",
+      itemsCost: "34",
+      weight: "1.0",
+      shippingCost: "40",
       items: [
         {
           name: "Tablet",
@@ -340,7 +341,7 @@ function AgentDashboard() {
     switch (activeTab) {
       case "Orders":
         return ["Customer ID", "Name", "Email", ""];
-      case "Shippings":
+      case "Confirm":
         return [
           "Customer ID",
           "Name",
@@ -350,7 +351,7 @@ function AgentDashboard() {
           "Shipping Cost",
           "",
         ];
-      case "Confirm":
+      case "Shippings":
       case "Completed":
         return [
           "Customer ID",
@@ -377,7 +378,7 @@ function AgentDashboard() {
             <td className="p-3">{item.email}</td>
           </>
         );
-      case "Shippings":
+      case "Confirm":
         return (
           <>
             <td className="p-3">{item.customerId}</td>
@@ -432,7 +433,7 @@ function AgentDashboard() {
             </td>
           </>
         );
-      case "Confirm":
+      case "Shippings":
         return (
           <>
             <td className="p-3">{item.customerId}</td>
@@ -524,7 +525,7 @@ function AgentDashboard() {
                         bgColor={COLORS.GREY_500}
                         onClick={() => handleConfirm(item.customerId)}
                         disabled={item.confirmed}
-                        text="Confirm"
+                        text="Add"
                       />
                     )}
                     <Button

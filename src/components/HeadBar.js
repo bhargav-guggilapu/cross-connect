@@ -11,7 +11,7 @@ import { updateUser } from "../services/Api";
 import Loading from "./Loading";
 
 export default function HeadBar({ user, setUser }) {
-  const [loading, setLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [greeting, setGreeting] = useState("");
   const [anchorEl, setAnchorEl] = useState(null);
   const [anchorElZip, setAnchorElZip] = useState(null);
@@ -66,7 +66,7 @@ export default function HeadBar({ user, setUser }) {
       return;
     }
 
-    setLoading(true);
+    setIsLoading(true);
     try {
       const updatedUser = await updateUser({
         ...user,
@@ -78,7 +78,7 @@ export default function HeadBar({ user, setUser }) {
       console.error("Unable to update zip code: ", error);
     }
     handleZipMenuClose();
-    setLoading(false);
+    setIsLoading(false);
   };
 
   const handleLogout = async () => {
@@ -91,7 +91,7 @@ export default function HeadBar({ user, setUser }) {
     handleMenuClose();
   };
 
-  if (loading) {
+  if (isLoading) {
     return <Loading />;
   }
 
