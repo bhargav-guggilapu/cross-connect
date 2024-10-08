@@ -28,7 +28,17 @@ const agentMenuItems = [
 
 export default function Sidebar({ user }) {
   const location = useLocation();
-  const menuItems = user.role === ROLES.AGENT ? agentMenuItems : customerMenuItems;
+  const menuItems =
+    user.role === ROLES.AGENT
+      ? agentMenuItems
+      : user.selectedAgent
+      ? customerMenuItems
+      : customerMenuItems.filter(
+          (item) =>
+            item.name !== "Draft" &&
+            item.name !== "In Progress" &&
+            item.name !== "Delivered"
+        );
 
   return (
     <div className="w-64 bg-white shadow-md overflow-y-auto">

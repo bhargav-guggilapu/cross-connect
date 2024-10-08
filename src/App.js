@@ -14,6 +14,7 @@ import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "./auth/firebase";
 import Loading from "./components/Loading";
 import { getUserByEmail } from "./services/Api";
+import { SnackbarProvider } from "./components/Helpers/SnackbarContext";
 
 export default function App() {
   const [user, setUser] = useState(null);
@@ -47,59 +48,65 @@ export default function App() {
   }
 
   return (
-    <div className="flex flex-col h-screen bg-orange-50 font-sans">
-      {user ? (
-        <>
-          <HeadBar user={user} setUser={setUser} />
-          <div className="flex flex-1 overflow-hidden">
-            <Sidebar user={user} setUser={setUser} />
-            <div className="flex-1 overflow-auto">
-              <Routes>
-                <Route
-                  path="/dashboard"
-                  element={<Dashboard user={user} setUser={setUser} />}
-                />
-                <Route
-                  path="/agent"
-                  element={<Agent user={user} setUser={setUser} />}
-                />
-                <Route
-                  path="/draft"
-                  element={<Draft user={user} setUser={setUser} />}
-                />
-                <Route
-                  path="/in-progress"
-                  element={<InProgress user={user} setUser={setUser} />}
-                />
-                <Route
-                  path="/delivered"
-                  element={<Delivered user={user} setUser={setUser} />}
-                />
-                <Route
-                  path="/prohibited-items"
-                  element={<ProhibitedItems user={user} setUser={setUser} />}
-                />
-                <Route
-                  path="/account"
-                  element={<Account user={user} setUser={setUser} />}
-                />
-                <Route
-                  path="*"
-                  element={<Navigate to="/dashboard" replace />}
-                />
-              </Routes>
+    <SnackbarProvider>
+      <div className="flex flex-col h-screen bg-orange-50 font-sans">
+        {user ? (
+          <>
+            <HeadBar user={user} setUser={setUser} />
+            <div className="flex flex-1 overflow-hidden">
+              <Sidebar user={user} setUser={setUser} />
+              <div className="flex-1 overflow-auto">
+                <Routes>
+                  <Route
+                    path="/dashboard"
+                    element={<Dashboard user={user} setUser={setUser} />}
+                  />
+                  <Route
+                    path="/agent"
+                    element={<Agent user={user} setUser={setUser} />}
+                  />
+                  {user.selectedAgent && (
+                    <>
+                      <Route
+                        path="/draft"
+                        element={<Draft user={user} setUser={setUser} />}
+                      />
+                      <Route
+                        path="/in-progress"
+                        element={<InProgress user={user} setUser={setUser} />}
+                      />
+                      <Route
+                        path="/delivered"
+                        element={<Delivered user={user} setUser={setUser} />}
+                      />
+                    </>
+                  )}
+                  <Route
+                    path="/prohibited-items"
+                    element={<ProhibitedItems user={user} setUser={setUser} />}
+                  />
+                  <Route
+                    path="/account"
+                    element={<Account user={user} setUser={setUser} />}
+                  />
+                  <Route
+                    path="*"
+                    element={<Navigate to="/dashboard" replace />}
+                  />
+                </Routes>
+              </div>
             </div>
-          </div>
-        </>
-      ) : (
-        <Routes>
-          <Route
-            path="/login"
-            element={<LoginPage user={user} setUser={setUser} />}
-          />
-          <Route path="*" element={<Navigate to="/login" replace />} />
-        </Routes>
-      )}
-    </div>
+          </>
+        ) : (
+          <Routes>
+            <Route
+              path="/login"
+              element={<LoginPage user={user} setUser={setUser} />}
+            />
+            <Route path="*" element={<Navigate to="/login" replace />} />
+          </Routes>
+        )}
+      </div>
+    </SnackbarProvider>
   );
 }

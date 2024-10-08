@@ -2,8 +2,18 @@ import { Chat, ConnectWithoutContact, SwapHoriz } from "@mui/icons-material";
 import { Avatar } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import Button from "./Helpers/Button";
-import { COLORS } from "./Constants/Constants";
-import { getAgentsByZipCode, updateUser } from "../services/Api";
+import {
+  AGENT_STATUS,
+  COLORS,
+  CUSTOMER_STATUS,
+  ORDER_STATUS,
+} from "./Constants/Constants";
+import {
+  createOrder,
+  getAgentsByZipCode,
+  updateOrder,
+  updateUser,
+} from "../services/Api";
 import Loading from "./Loading";
 
 const formatAgentDetails = (givenUser) => {
@@ -57,21 +67,45 @@ export default function Agent({ user, setUser }) {
 
   const handleConnect = async (agent) => {
     setLoading(true);
+
     const updatedUser = await updateUser({
       ...user,
       selectedAgent: agent.id,
     });
+
     setUser(updatedUser.data);
     setSelectedAgent(formatAgentDetails(updatedUser.data.selectedAgent));
+
+    await createOrder({
+      customer: user._id,
+      agent: agent.id,
+      agentStatus: AGENT_STATUS.ORDERED,
+      customerStatus: CUSTOMER_STATUS.DRAFT,
+      orderStatus: ORDER_STATUS.ACTIVE,
+    });
+
     setLoading(false);
   };
 
   const handleChangeAgent = async () => {
     setLoading(true);
+
+    await updateOrder(
+      {
+        orderStatus: ORDER_STATUS.IN_ACTIVE,
+      },
+      {
+        customer: user._id,
+        agent: user.selectedAgent._id,
+        orderStatus: ORDER_STATUS.ACTIVE,
+      }
+    );
+
     const updatedUser = await updateUser({
       ...user,
       selectedAgent: null,
     });
+
     setUser(updatedUser.data);
     setSelectedAgent(null);
     setLoading(false);

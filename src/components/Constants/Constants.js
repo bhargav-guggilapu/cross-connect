@@ -13,3 +13,37 @@ export const ROLES = {
   AGENT: "Agent",
   CUSTOMER: "Customer",
 };
+
+export const ORDER_STATUS = {
+  ACTIVE: "Active",
+  IN_ACTIVE: "In Active",
+};
+
+export const AGENT_STATUS = {
+  ORDERED: "Ordered",
+  CONFIRMED: "Confirmed",
+  SHIPPED: "Shipped",
+  COMPLETED: "Completed",
+};
+
+export const CUSTOMER_STATUS = {
+  DRAFT: "Draft",
+  IN_PROGRESS: "In Progress",
+  DELIVERED: "Delivered",
+};
+
+export const IN_PROGRESS_STATUS = {
+  ORDER_PLACED: "Order Placed",
+  COST_ESTIMATE: "Cost Estimate",
+  ITEMS_GATHERING: "Items Gathering",
+  SHIPPING_ESTIMATE: "Shipping Estimate",
+  SHIPPED: "Shipped",
+};
+
+export const UNITS = ["KG(s)", "Liter(s)", "Piece(s)"];
+export const ALERTS = {
+  SUCCESS: "success",
+  INFO: "info",
+  WARNING: "warning",
+  ERROR: "error",
+};

@@ -9,10 +9,12 @@ import {
 import { auth } from "../auth/firebase";
 import { useNavigate } from "react-router-dom";
 import { createUser, getUserByEmail } from "../services/Api";
+import CircularProgress from "@mui/material/CircularProgress";
 
 export default function LoginPage({ setUser }) {
   const navigate = useNavigate();
   const [isLogin, setIsLogin] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [formData, setFormData] = useState({
@@ -105,6 +107,7 @@ export default function LoginPage({ setUser }) {
     );
 
     if (Object.keys(newErrors).length === 0) {
+      setIsLoading(true);
       try {
         if (isLogin) {
           await signInWithEmailAndPassword(
@@ -127,6 +130,8 @@ export default function LoginPage({ setUser }) {
       } catch (error) {
         console.error("Auth error:", error);
         setErrors({ email: error.message });
+      } finally {
+        setIsLoading(false);
       }
     }
   };
@@ -420,8 +425,15 @@ export default function LoginPage({ setUser }) {
                 <button
                   type="submit"
                   className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-orange-600 hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 transition duration-300"
+                  disabled={isLoading}
                 >
-                  {isLogin ? "Sign In" : "Sign Up"}
+                  {isLoading ? (
+                    <CircularProgress size={24} color="inherit" />
+                  ) : isLogin ? (
+                    "Sign In"
+                  ) : (
+                    "Sign Up"
+                  )}
                 </button>
               </div>
             </form>
@@ -432,6 +444,7 @@ export default function LoginPage({ setUser }) {
               <button
                 onClick={toggleAuthMode}
                 className="text-orange-600 hover:underline"
+                disabled={isLoading}
               >
                 {isLogin ? "Sign Up" : "Sign In"}
               </button>

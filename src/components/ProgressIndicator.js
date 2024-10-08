@@ -6,7 +6,6 @@ import StepLabel from "@mui/material/StepLabel";
 
 const steps = [
   "Order Placed",
-  "Agent Confirmation",
   "Cost Estimate",
   "Items Gathering",
   "Shipping Estimate",
@@ -18,6 +17,7 @@ const ProgressIndicator = ({ activeStep }) => {
     <Box sx={{ width: "100%", mt: 2 }}>
       <Stepper activeStep={activeStep - 1} alternativeLabel>
         {steps.map((label, index) => {
+          const isCompleted = activeStep > index + 1;
           const stepProps = {
             sx: {
               "& .MuiStepLabel-root .Mui-completed": {
@@ -43,7 +43,11 @@ const ProgressIndicator = ({ activeStep }) => {
           const labelProps = {};
 
           return (
-            <Step key={label} {...stepProps}>
+            <Step
+              key={label}
+              completed={isCompleted || activeStep === steps.length}
+              {...stepProps}
+            >
               <StepLabel {...labelProps}>{label}</StepLabel>
             </Step>
           );
