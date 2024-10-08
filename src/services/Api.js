@@ -3,7 +3,7 @@ import queryString from "query-string";
 import { API_ENDPOINTS, BACKEND_URL, BACKEND_URL_LOCAL } from "./EndPoints";
 
 const apiClient = axios.create({
-  baseURL: BACKEND_URL_LOCAL,
+  baseURL: BACKEND_URL,
   timeout: 10000,
   headers: {
     "Content-Type": "application/json",
