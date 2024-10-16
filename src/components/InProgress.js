@@ -15,6 +15,7 @@ import Loading from "./Loading";
 import {
   convertCurrency,
   getCurrencySymbol,
+  getCurrentDate,
   getInProgressStep,
 } from "./Helpers/staticFunctions";
 import { useNavigate } from "react-router-dom";
@@ -31,12 +32,11 @@ export default function InProgress({ user }) {
   const [selectedOrder, setSelectedOrder] = useState(null);
 
   useEffect(() => {
-    const fetchOrder = async () => {
+    const fetchOrders = async () => {
       setIsLoading(true);
       try {
         const order = await getOrder({
           customer: user._id,
-          agent: user.selectedAgent._id,
           customerStatus: CUSTOMER_STATUS.IN_PROGRESS,
           orderStatus: ORDER_STATUS.ACTIVE,
         });
@@ -47,7 +47,7 @@ export default function InProgress({ user }) {
       setIsLoading(false);
     };
 
-    fetchOrder();
+    fetchOrders();
   }, [user]);
 
   const openDialog = (order) => {
@@ -104,12 +104,13 @@ export default function InProgress({ user }) {
         agentStatus: AGENT_STATUS.COMPLETED,
         inProgressStatus: "",
         customerStatus: CUSTOMER_STATUS.DELIVERED,
+        deliveredDate: getCurrentDate(),
       },
       { _id: item._id }
     );
-    await fetchOrders();
 
     setIsLoading(false);
+    navigate("/delivered");
   };
 
   if (isLoading) {
@@ -125,9 +126,11 @@ export default function InProgress({ user }) {
         >
           In Progress
         </h1>
-        <div className="mb-4">
-          <CurrencyToggle currency={currency} setCurrency={setCurrency} />
-        </div>
+        {orders?.length > 0 && (
+          <div className="mb-4">
+            <CurrencyToggle currency={currency} setCurrency={setCurrency} />
+          </div>
+        )}
       </div>
 
       {orders?.length > 0 ? (
@@ -256,12 +259,7 @@ export default function InProgress({ user }) {
         <div className="mb-6 p-6 bg-white rounded-lg shadow-md border border-orange-200">
           <div className="flex flex-col justify-center items-center">
             <h2 className="text-xl mb-4">
-              You don't have any in progress orders with
-              <span className="text-orange-800">
-                {" "}
-                {user.selectedAgent.firstName}
-              </span>
-              .
+              You don't have any in progress orders.
             </h2>
             <Button
               bgColor={COLORS.GREEN_600}

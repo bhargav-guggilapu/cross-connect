@@ -61,7 +61,7 @@ function ItemDetails({
     await updateOrder(
       {
         inProgressStatus: IN_PROGRESS_STATUS.COST_ESTIMATE,
-        itemsCost: order.items.reduce((sum, item) => sum + item.cost, 0),
+        itemsCost: order.items.reduce((sum, item) => sum + parseFloat(item.cost), 0),
       },
       { _id: order._id }
     );

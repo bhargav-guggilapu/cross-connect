@@ -186,8 +186,8 @@ function AgentDashboard({ user }) {
             <td className="p-3">{`${item.customer.firstName} ${item.customer.lastName}`}</td>
             <td className="p-3">{item.customer.email}</td>
             <td className="p-3">₹ {item.itemsCost}</td>
-            <td className="p-3">{item.packageWeight} KG</td>
             <td className="p-3">₹ {item.shippingCost}</td>
+            <td className="p-3">{item.packageWeight} KG</td>
             <td className="p-3">
               {item.inProgressStatus !== IN_PROGRESS_STATUS.SHIPPED ? (
                 <input
@@ -213,8 +213,8 @@ function AgentDashboard({ user }) {
             <td className="p-3">{`${item.customer.firstName} ${item.customer.lastName}`}</td>
             <td className="p-3">{item.customer.email}</td>
             <td className="p-3">₹ {item.itemsCost}</td>
-            <td className="p-3">{item.packageWeight} KG</td>
             <td className="p-3">₹ {item.shippingCost}</td>
+            <td className="p-3">{item.packageWeight} KG</td>
             <td className="p-3">{item.trackingId}</td>
           </>
         );
@@ -312,7 +312,7 @@ function AgentDashboard({ user }) {
         ) : (
           <div className="mb-6 p-6 bg-white rounded-lg shadow-md border border-orange-200">
             <div className="flex flex-col justify-center items-center">
-              <h2 className="text-xl">You {activeTab} section is empty</h2>
+              <h2 className="text-xl">Your {activeTab} section is empty</h2>
             </div>
           </div>
         )}

@@ -66,21 +66,19 @@ export default function App() {
                     element={<Agent user={user} setUser={setUser} />}
                   />
                   {user.selectedAgent && (
-                    <>
-                      <Route
-                        path="/draft"
-                        element={<Draft user={user} setUser={setUser} />}
-                      />
-                      <Route
-                        path="/in-progress"
-                        element={<InProgress user={user} setUser={setUser} />}
-                      />
-                      <Route
-                        path="/delivered"
-                        element={<Delivered user={user} setUser={setUser} />}
-                      />
-                    </>
+                    <Route
+                      path="/draft"
+                      element={<Draft user={user} setUser={setUser} />}
+                    />
                   )}
+                  <Route
+                    path="/in-progress"
+                    element={<InProgress user={user} setUser={setUser} />}
+                  />
+                  <Route
+                    path="/delivered"
+                    element={<Delivered user={user} setUser={setUser} />}
+                  />
                   <Route
                     path="/prohibited-items"
                     element={<ProhibitedItems user={user} setUser={setUser} />}

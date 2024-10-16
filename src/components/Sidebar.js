@@ -33,12 +33,7 @@ export default function Sidebar({ user }) {
       ? agentMenuItems
       : user.selectedAgent
       ? customerMenuItems
-      : customerMenuItems.filter(
-          (item) =>
-            item.name !== "Draft" &&
-            item.name !== "In Progress" &&
-            item.name !== "Delivered"
-        );
+      : customerMenuItems.filter((item) => item.name !== "Draft");
 
   return (
     <div className="w-64 bg-white shadow-md overflow-y-auto">
