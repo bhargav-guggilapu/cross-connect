@@ -1,318 +1,34 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Button from "./Helpers/Button";
-import { COLORS } from "./Constants/Constants";
+import { AGENT_STATUS, COLORS } from "./Constants/Constants";
 import { Chat, CheckCircle, Inventory } from "@mui/icons-material";
 import ItemDetails from "./ItemDetails";
+import { getOrdersByAgent } from "../services/Api";
+import Loading from "./Loading";
 
-const tableDataAgent = {
-  Orders: [
-    {
-      customerId: 101,
-      name: "Alice Johnson",
-      email: "alice.johnson@example.com",
-      items: [
-        {
-          name: "Smartphone",
-          description: "Latest model with 128GB storage",
-          quantity: 1,
-          storeName: "Apple Store",
-          cost: 40,
-        },
-        {
-          name: "Charger",
-          description: "Fast charging USB-C charger",
-          quantity: 1,
-          storeName: "Best Buy",
-          cost: 20.43,
-        },
-      ],
-      status: "Orders",
-    },
-    {
-      customerId: 102,
-      name: "Bob Smith",
-      email: "bob.smith@example.com",
-      items: [
-        {
-          name: "Headphones",
-          description: "Noise-cancelling over-ear headphones",
-          quantity: 1,
-          storeName: "Amazon",
-          cost: 54.43,
-        },
-        {
-          name: "Laptop Stand",
-          description: "Adjustable aluminum laptop stand",
-          quantity: 1,
-          storeName: "eBay",
-          cost: 45.45,
-        },
-      ],
-      status: "Orders",
-    },
-    {
-      customerId: 103,
-      name: "Charlie Brown",
-      email: "charlie.brown@example.com",
-      items: [
-        {
-          name: "Tablet",
-          description: "10-inch display, 64GB storage",
-          quantity: 1,
-          storeName: "Walmart",
-          cost: 98.34,
-        },
-        {
-          name: "Bluetooth Keyboard",
-          description: "Compact wireless keyboard",
-          quantity: 1,
-          storeName: "Target",
-          cost: 4,
-        },
-      ],
-      status: "Orders",
-    },
-  ],
-
-  Confirm: [
-    {
-      customerId: 101,
-      name: "Alice Johnson",
-      email: "alice.johnson@example.com",
-      itemsCost: "30",
-      weight: "2.5",
-      shippingCost: "55",
-      trackingId: "343434334",
-      items: [
-        {
-          name: "Smartphone",
-          description: "Latest model with 128GB storage",
-          quantity: 1,
-          storeName: "Apple Store",
-        },
-        {
-          name: "Charger",
-          description: "Fast charging USB-C charger",
-          quantity: 1,
-          storeName: "Best Buy",
-        },
-      ],
-      status: "Shippings",
-      confirmed: false,
-    },
-    {
-      customerId: 102,
-      name: "Bob Smith",
-      email: "bob.smith@example.com",
-      itemsCost: "45",
-      weight: "3.0",
-      shippingCost: "70",
-      trackingId: "74637864783648368",
-      items: [
-        {
-          name: "Headphones",
-          description: "Noise-cancelling over-ear headphones",
-          quantity: 1,
-          storeName: "Amazon",
-        },
-        {
-          name: "Laptop Stand",
-          description: "Adjustable aluminum laptop stand",
-          quantity: 1,
-          storeName: "eBay",
-        },
-      ],
-      status: "Shippings",
-      confirmed: false,
-    },
-    {
-      customerId: 103,
-      name: "Charlie Brown",
-      email: "charlie.brown@example.com",
-      itemsCost: "34",
-      weight: "1.0",
-      shippingCost: "40",
-      trackingId: "74637864783648368",
-      items: [
-        {
-          name: "Tablet",
-          description: "10-inch display, 64GB storage",
-          quantity: 1,
-          storeName: "Walmart",
-          cost: 98.34,
-        },
-        {
-          name: "Bluetooth Keyboard",
-          description: "Compact wireless keyboard",
-          quantity: 1,
-          storeName: "Target",
-          cost: 4,
-        },
-      ],
-      status: "Shippings",
-      confirmed: false,
-    },
-  ],
-  Shippings: [
-    {
-      customerId: 101,
-      name: "Alice Johnson",
-      email: "alice.johnson@example.com",
-      itemsCost: "30",
-      weight: "2.5",
-      shippingCost: "55",
-      items: [
-        {
-          name: "Smartphone",
-          description: "Latest model with 128GB storage",
-          quantity: 1,
-          storeName: "Apple Store",
-        },
-        {
-          name: "Charger",
-          description: "Fast charging USB-C charger",
-          quantity: 1,
-          storeName: "Best Buy",
-        },
-      ],
-      status: "Shippings",
-      confirmed: false,
-    },
-    {
-      customerId: 102,
-      name: "Bob Smith",
-      email: "bob.smith@example.com",
-      itemsCost: "45",
-      weight: "3.0",
-      shippingCost: "70",
-      items: [
-        {
-          name: "Headphones",
-          description: "Noise-cancelling over-ear headphones",
-          quantity: 1,
-          storeName: "Amazon",
-        },
-        {
-          name: "Laptop Stand",
-          description: "Adjustable aluminum laptop stand",
-          quantity: 1,
-          storeName: "eBay",
-        },
-      ],
-      status: "Shippings",
-      confirmed: false,
-    },
-    {
-      customerId: 103,
-      name: "Charlie Brown",
-      email: "charlie.brown@example.com",
-      itemsCost: "34",
-      weight: "1.0",
-      shippingCost: "40",
-      items: [
-        {
-          name: "Tablet",
-          description: "10-inch display, 64GB storage",
-          quantity: 1,
-          storeName: "Walmart",
-          cost: 98.34,
-        },
-        {
-          name: "Bluetooth Keyboard",
-          description: "Compact wireless keyboard",
-          quantity: 1,
-          storeName: "Target",
-          cost: 4,
-        },
-      ],
-      status: "Shippings",
-      confirmed: false,
-    },
-  ],
-  Completed: [
-    {
-      customerId: 101,
-      name: "Alice Johnson",
-      email: "alice.johnson@example.com",
-      itemsCost: "30",
-      weight: "2.5",
-      shippingCost: "55",
-      trackingId: "343434334",
-      items: [
-        {
-          name: "Smartphone",
-          description: "Latest model with 128GB storage",
-          quantity: 1,
-          storeName: "Apple Store",
-        },
-        {
-          name: "Charger",
-          description: "Fast charging USB-C charger",
-          quantity: 1,
-          storeName: "Best Buy",
-        },
-      ],
-      status: "Shippings",
-      confirmed: false,
-    },
-    {
-      customerId: 102,
-      name: "Bob Smith",
-      email: "bob.smith@example.com",
-      itemsCost: "45",
-      weight: "3.0",
-      shippingCost: "70",
-      trackingId: "74637864783648368",
-      items: [
-        {
-          name: "Headphones",
-          description: "Noise-cancelling over-ear headphones",
-          quantity: 1,
-          storeName: "Amazon",
-        },
-        {
-          name: "Laptop Stand",
-          description: "Adjustable aluminum laptop stand",
-          quantity: 1,
-          storeName: "eBay",
-        },
-      ],
-      status: "Shippings",
-      confirmed: false,
-    },
-    {
-      customerId: 103,
-      name: "Charlie Brown",
-      email: "charlie.brown@example.com",
-      itemsCost: "34",
-      weight: "1.0",
-      shippingCost: "40",
-      trackingId: "74637864783648368",
-      items: [
-        {
-          name: "Tablet",
-          description: "10-inch display, 64GB storage",
-          quantity: 1,
-          storeName: "Walmart",
-        },
-        {
-          name: "Bluetooth Keyboard",
-          description: "Compact wireless keyboard",
-          quantity: 1,
-          storeName: "Target",
-        },
-      ],
-      status: "Shippings",
-      confirmed: false,
-    },
-  ],
-};
-
-function AgentDashboard() {
-  const [activeTab, setActiveTab] = useState("Orders");
-  const [tableData, setTableData] = useState(tableDataAgent);
+function AgentDashboard({ user }) {
+  const [isLoading, setIsLoading] = useState(false);
+  const [activeTab, setActiveTab] = useState(AGENT_STATUS.ORDERED);
+  const [tableData, setTableData] = useState([]);
   const [isOpen, setIsOpen] = useState(false);
   const [selectedItems, setSelectedItems] = useState([]);
+  const [orders, setOrders] = useState([]);
+
+  useEffect(() => {
+    const fetchUserDetails = async () => {
+      setIsLoading(true);
+
+      try {
+        const ordersData = await getOrdersByAgent(user._id);
+        setOrders(ordersData.data);
+      } catch (error) {
+        console.error("Error fetching customers:", error);
+      }
+      setIsLoading(false);
+    };
+
+    fetchUserDetails();
+  }, [user]);
 
   const openDialog = (items) => {
     setSelectedItems(items);
@@ -339,9 +55,9 @@ function AgentDashboard() {
 
   const renderTableHeadersAgent = () => {
     switch (activeTab) {
-      case "Orders":
+      case AGENT_STATUS.ORDERED:
         return ["Customer ID", "Name", "Email", ""];
-      case "Confirm":
+      case AGENT_STATUS.CONFIRMED:
         return [
           "Customer ID",
           "Name",
@@ -351,8 +67,8 @@ function AgentDashboard() {
           "Shipping Cost",
           "",
         ];
-      case "Shippings":
-      case "Completed":
+      case AGENT_STATUS.SHIPPED:
+      case AGENT_STATUS.COMPLETED:
         return [
           "Customer ID",
           "Name",
@@ -370,44 +86,26 @@ function AgentDashboard() {
 
   const renderTableRowAgent = (item) => {
     switch (activeTab) {
-      case "Orders":
+      case AGENT_STATUS.ORDERED:
         return (
           <>
-            <td className="p-3">{item.customerId}</td>
-            <td className="p-3">{item.name}</td>
-            <td className="p-3">{item.email}</td>
+            <td className="p-3">{item.customer._id}</td>
+            <td className="p-3">{`${item.customer.firstName} ${item.customer.lastName}`}</td>
+            <td className="p-3">{item.customer.email}</td>
           </>
         );
-      case "Confirm":
+      case AGENT_STATUS.CONFIRMED:
         return (
           <>
-            <td className="p-3">{item.customerId}</td>
-            <td className="p-3">{item.name}</td>
-            <td className="p-3">{item.email}</td>
+            <td className="p-3">{item.customer._id}</td>
+            <td className="p-3">{`${item.customer.firstName} ${item.customer.lastName}`}</td>
+            <td className="p-3">{item.customer.email}</td>
             <td className="p-3">₹ {item.itemsCost}</td>
             <td className="p-3">
               <div className="relative max-w-28">
                 <span className="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-500">
                   ₹
                 </span>
-                <input
-                  type="number"
-                  name="weight"
-                  placeholder="Weight"
-                  className={`w-full pl-6 pr-2 py-2 border border-orange-200 rounded focus:outline-none focus:ring-2 focus:ring-orange-300 ${
-                    item.confirmed && "cursor-not-allowed"
-                  }`}
-                  value={item.weight}
-                  onChange={(e) =>
-                    handleInputChange(item.customerId, "weight", e.target.value)
-                  }
-                  disabled={item.confirmed}
-                  aria-label="Weight in KGs"
-                />
-              </div>
-            </td>
-            <td className="p-3">
-              <div className="relative max-w-28">
                 <input
                   type="number"
                   name="shippingCost"
@@ -426,6 +124,25 @@ function AgentDashboard() {
                   aria-label="Shipping Cost in Rupees"
                   disabled={item.confirmed}
                 />
+              </div>
+            </td>
+            <td className="p-3">
+              <div className="relative max-w-28">
+                <input
+                  type="number"
+                  name="weight"
+                  placeholder="Weight"
+                  className={`w-full pl-6 pr-2 py-2 border border-orange-200 rounded focus:outline-none focus:ring-2 focus:ring-orange-300 ${
+                    item.confirmed && "cursor-not-allowed"
+                  }`}
+                  value={item.packageWeight}
+                  onChange={(e) =>
+                    handleInputChange(item.customerId, "weight", e.target.value)
+                  }
+                  disabled={item.confirmed}
+                  aria-label="Weight in KGs"
+                />
+
                 <span className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-500">
                   KG
                 </span>
@@ -433,14 +150,14 @@ function AgentDashboard() {
             </td>
           </>
         );
-      case "Shippings":
+      case AGENT_STATUS.SHIPPED:
         return (
           <>
-            <td className="p-3">{item.customerId}</td>
-            <td className="p-3">{item.name}</td>
-            <td className="p-3">{item.email}</td>
+            <td className="p-3">{item.customer._id}</td>
+            <td className="p-3">{`${item.customer.firstName} ${item.customer.lastName}`}</td>
+            <td className="p-3">{item.customer.email}</td>
             <td className="p-3">₹ {item.itemsCost}</td>
-            <td className="p-3">{item.weight} KG</td>
+            <td className="p-3">{item.packageWeight} KG</td>
             <td className="p-3">₹ {item.shippingCost}</td>
             <td className="p-3">
               <input
@@ -464,14 +181,14 @@ function AgentDashboard() {
             </td>
           </>
         );
-      case "Completed":
+      case AGENT_STATUS.COMPLETED:
         return (
           <>
-            <td className="p-3">{item.customerId}</td>
-            <td className="p-3">{item.name}</td>
-            <td className="p-3">{item.email}</td>
+            <td className="p-3">{item.customer._id}</td>
+            <td className="p-3">{`${item.customer.firstName} ${item.customer.lastName}`}</td>
+            <td className="p-3">{item.customer.email}</td>
             <td className="p-3">₹ {item.itemsCost}</td>
-            <td className="p-3">{item.weight} KG</td>
+            <td className="p-3">{item.packageWeight} KG</td>
             <td className="p-3">₹ {item.shippingCost}</td>
             <td className="p-3">{item.trackingId}</td>
           </>
@@ -485,17 +202,30 @@ function AgentDashboard() {
     setActiveTab(tab);
   };
 
+  const getLength = (tab) => {
+    return orders.filter((order) => order.agentStatus === tab).length;
+  };
+
+  if (isLoading) {
+    return <Loading />;
+  }
+
   return (
     <div className="p-6 bg-white rounded-lg shadow-md border border-orange-200">
       <div className="flex space-x-4 mb-4">
-        {Object.keys(tableData).map((tab) => (
+        {[
+          AGENT_STATUS.ORDERED,
+          AGENT_STATUS.CONFIRMED,
+          AGENT_STATUS.SHIPPED,
+          AGENT_STATUS.COMPLETED,
+        ].map((tab) => (
           <Button
             key={tab}
             customStyles={`${
               activeTab === tab ? COLORS.ORANGE_500 : COLORS.ORANGE_100
             }`}
             onClick={() => handleTabClick(tab)}
-            text={`${tab} (${tableData[tab].length})`}
+            text={`${tab} (${getLength(tab)})`}
           />
         ))}
       </div>
@@ -511,39 +241,42 @@ function AgentDashboard() {
             </tr>
           </thead>
           <tbody>
-            {tableData[activeTab].map((item, index) => (
-              <tr
-                key={index}
-                className={index % 2 === 0 ? "bg-orange-100" : ""}
-              >
-                {renderTableRowAgent(item)}
-                <td className="p-3">
-                  <div className="flex justify-center items-center space-x-4">
-                    {(activeTab === "Shippings" || activeTab === "Confirm") && (
+            {orders
+              .filter((order) => order.agentStatus === activeTab)
+              .map((item, index) => (
+                <tr
+                  key={index}
+                  className={index % 2 === 0 ? "bg-orange-100" : ""}
+                >
+                  {renderTableRowAgent(item)}
+                  <td className="p-3">
+                    <div className="flex justify-center items-center space-x-4">
+                      {(activeTab === AGENT_STATUS.SHIPPED ||
+                        activeTab === AGENT_STATUS.CONFIRMED) && (
+                        <Button
+                          icon={CheckCircle}
+                          bgColor={COLORS.GREY_500}
+                          onClick={() => handleConfirm(item.customerId)}
+                          disabled={item.confirmed}
+                          text="Add"
+                        />
+                      )}
                       <Button
-                        icon={CheckCircle}
-                        bgColor={COLORS.GREY_500}
-                        onClick={() => handleConfirm(item.customerId)}
-                        disabled={item.confirmed}
-                        text="Add"
+                        icon={Inventory}
+                        bgColor={COLORS.ORANGE_500}
+                        onClick={() => openDialog(item.items)}
+                        text="Items"
                       />
-                    )}
-                    <Button
-                      icon={Inventory}
-                      bgColor={COLORS.ORANGE_500}
-                      onClick={() => openDialog(item.items)}
-                      text="Items"
-                    />
-                    <Button
-                      icon={Chat}
-                      bgColor={COLORS.GREEN_600}
-                      // onClick={handleChangeAgent}
-                      text="Chat"
-                    />
-                  </div>
-                </td>
-              </tr>
-            ))}
+                      <Button
+                        icon={Chat}
+                        bgColor={COLORS.GREEN_600}
+                        // onClick={handleChangeAgent}
+                        text="Chat"
+                      />
+                    </div>
+                  </td>
+                </tr>
+              ))}
           </tbody>
         </table>
       </div>
@@ -551,7 +284,7 @@ function AgentDashboard() {
         isOpen={isOpen}
         selectedItems={selectedItems}
         setIsOpen={setIsOpen}
-        enableUpdate={activeTab === "Orders"}
+        enableUpdate={activeTab === AGENT_STATUS.ORDERED}
       />
     </div>
   );

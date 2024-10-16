@@ -9,6 +9,8 @@ import {
 import Button from "./Helpers/Button";
 import { COLORS } from "./Constants/Constants";
 import { CheckCircle, Close, AddShoppingCart, Edit } from "@mui/icons-material";
+import CurrencyToggle from "./Helpers/CurrencyToggle";
+import { convertCurrency, getCurrencySymbol } from "./Helpers/staticFunctions";
 
 function ItemDetails({
   isOpen,
@@ -19,6 +21,7 @@ function ItemDetails({
 }) {
   const [editItems, setEditItems] = useState({});
   const [updatedItems, setUpdatedItems] = useState(selectedItems);
+  const [currency, setCurrency] = useState("INR");
 
   useEffect(() => {
     if (selectedItems && selectedItems.length) {
@@ -85,6 +88,9 @@ function ItemDetails({
         </IconButton>
       </DialogTitle>
       <DialogContent>
+        <div className="mb-4 flex items-center justify-end">
+          <CurrencyToggle currency={currency} setCurrency={setCurrency} />
+        </div>
         <div className="bg-white rounded-lg shadow overflow-hidden">
           <table className="w-full bg-white shadow-md rounded-lg overflow-hidden">
             <thead className="bg-orange-500 text-white">
@@ -103,10 +109,10 @@ function ItemDetails({
                   key={index}
                   className={index % 2 === 0 ? "bg-orange-100" : ""}
                 >
-                  <td className="p-3">{item.name}</td>
-                  <td className="p-3">{item.description}</td>
-                  <td className="p-3">{item.quantity}</td>
-                  <td className="p-3">{item.storeName}</td>
+                  <td className="p-3">{item.name || `-`}</td>
+                  <td className="p-3">{item.description || `-`}</td>
+                  <td className="p-3">{item.quantity || `-`}</td>
+                  <td className="p-3">{item.storeName || `-`}</td>
                   <td className="p-3">
                     {editItems[index] ? (
                       <div className="relative max-w-28">
@@ -124,8 +130,13 @@ function ItemDetails({
                           }
                         />
                       </div>
+                    ) : item.cost ? (
+                      `${getCurrencySymbol(currency)} ${convertCurrency(
+                        currency,
+                        item.cost
+                      )}`
                     ) : (
-                      `₹ ${item.cost}`
+                      `-`
                     )}
                   </td>
                   {enableUpdate && (

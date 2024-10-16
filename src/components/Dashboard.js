@@ -10,6 +10,7 @@ import Button from "./Helpers/Button";
 import { COLORS, ROLES } from "./Constants/Constants";
 import AgentDashboard from "./AgentDashboard";
 import { useNavigate } from "react-router-dom";
+import { fetchExchangeRate } from "./Helpers/staticFunctions";
 
 const tableData = {
   Delivered: [
@@ -88,6 +89,10 @@ export default function Dashboard({ user }) {
 
     return () => clearInterval(intervalId);
   }, [user, navigate]);
+
+  useEffect(() => {
+    fetchExchangeRate();
+  }, []);
 
   const handleCopyClick = (text) => {
     navigator.clipboard.writeText(text).then(() => {
@@ -176,7 +181,7 @@ export default function Dashboard({ user }) {
       </h1>
 
       {user.role === ROLES.AGENT ? (
-        <AgentDashboard />
+        <AgentDashboard user={user} />
       ) : (
         <div>
           {agentData ? (
