@@ -52,3 +52,9 @@ export const updateOrder = async (order, filters) => {
 
   return await apiClient.put(`${API_ENDPOINTS.ORDERS}?${query}`, order);
 };
+
+export const getOrdersByAgent = async (agent) => {
+  return await apiClient.get(
+    `${API_ENDPOINTS.ORDERS}/getOrdersByAgent?agent=${agent}`
+  );
+};
