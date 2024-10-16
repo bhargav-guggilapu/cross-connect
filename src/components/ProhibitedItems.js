@@ -4,12 +4,14 @@ import { getProhibitedItems } from "../services/Api";
 import { Dialog, DialogContent, DialogTitle } from "@mui/material";
 
 export default function ProhibitedItems() {
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState({});
   const [prohibitedItems, setProhibitedItems] = useState([]);
 
   useEffect(() => {
+    setLoading(true);
+
     const populateProhibitedItems = async () => {
       try {
         const items = await getProhibitedItems();

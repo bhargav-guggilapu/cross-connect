@@ -79,12 +79,11 @@ function AgentDashboard({ user }) {
   const renderTableHeadersAgent = () => {
     switch (activeTab) {
       case AGENT_STATUS.ORDERED:
-        return ["Customer ID", "Name", "Email", ""];
+        return ["Order ID", "Customer Name", "Customer Email", ""];
       case AGENT_STATUS.CONFIRMED:
         return [
-          "Customer ID",
-          "Name",
-          "Email",
+          "Order ID",
+          "Customer Name",
           "Items Cost",
           "Shipping Cost",
           "Weight",
@@ -93,9 +92,8 @@ function AgentDashboard({ user }) {
       case AGENT_STATUS.SHIPPED:
       case AGENT_STATUS.COMPLETED:
         return [
-          "Customer ID",
-          "Name",
-          "Email",
+          "Order ID",
+          "Customer Name",
           "Items Cost",
           "Shipping Cost",
           "Weight",
@@ -112,7 +110,7 @@ function AgentDashboard({ user }) {
       case AGENT_STATUS.ORDERED:
         return (
           <>
-            <td className="p-3">{item.customer._id}</td>
+            <td className="p-3">{item._id}</td>
             <td className="p-3">{`${item.customer.firstName} ${item.customer.lastName}`}</td>
             <td className="p-3">{item.customer.email}</td>
           </>
@@ -120,9 +118,8 @@ function AgentDashboard({ user }) {
       case AGENT_STATUS.CONFIRMED:
         return (
           <>
-            <td className="p-3">{item.customer._id}</td>
+            <td className="p-3">{item._id}</td>
             <td className="p-3">{`${item.customer.firstName} ${item.customer.lastName}`}</td>
-            <td className="p-3">{item.customer.email}</td>
             <td className="p-3">₹ {item.itemsCost}</td>
             <td className="p-3">
               {item.inProgressStatus !==
@@ -135,7 +132,7 @@ function AgentDashboard({ user }) {
                     type="number"
                     name="shippingCost"
                     className={`w-full pr-2 pl-5 py-2 border border-orange-200 rounded focus:outline-none focus:ring-2 focus:ring-orange-300`}
-                    value={item?.shippingCost}
+                    value={item?.shippingCost || 0}
                     onChange={(e) =>
                       handleInputChange(
                         item._id,
@@ -158,7 +155,7 @@ function AgentDashboard({ user }) {
                     type="number"
                     name="packageWeight"
                     className={`w-full pl-2 pr-8 py-2 border border-orange-200 rounded focus:outline-none focus:ring-2 focus:ring-orange-300`}
-                    value={item?.packageWeight}
+                    value={item?.packageWeight || 0}
                     onChange={(e) =>
                       handleInputChange(
                         item._id,
@@ -182,9 +179,8 @@ function AgentDashboard({ user }) {
       case AGENT_STATUS.SHIPPED:
         return (
           <>
-            <td className="p-3">{item.customer._id}</td>
+            <td className="p-3">{item._id}</td>
             <td className="p-3">{`${item.customer.firstName} ${item.customer.lastName}`}</td>
-            <td className="p-3">{item.customer.email}</td>
             <td className="p-3">₹ {item.itemsCost}</td>
             <td className="p-3">₹ {item.shippingCost}</td>
             <td className="p-3">{item.packageWeight} KG</td>
@@ -194,7 +190,7 @@ function AgentDashboard({ user }) {
                   type="text"
                   name="trackingId"
                   className={`w-full p-2 pr-8 border border-orange-200 rounded focus:outline-none focus:ring-2 focus:ring-orange-300`}
-                  value={item.trackingId}
+                  value={item.trackingId || ""}
                   onChange={(e) =>
                     handleInputChange(item._id, "trackingId", e.target.value)
                   }
@@ -209,9 +205,8 @@ function AgentDashboard({ user }) {
       case AGENT_STATUS.COMPLETED:
         return (
           <>
-            <td className="p-3">{item.customer._id}</td>
+            <td className="p-3">{item._id}</td>
             <td className="p-3">{`${item.customer.firstName} ${item.customer.lastName}`}</td>
-            <td className="p-3">{item.customer.email}</td>
             <td className="p-3">₹ {item.itemsCost}</td>
             <td className="p-3">₹ {item.shippingCost}</td>
             <td className="p-3">{item.packageWeight} KG</td>

@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { ROLES } from "./Constants/Constants";
-import bgImage from "../images/bg-image.jpg";
+import logo from "../images/logo.jpg";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import {
   signInWithEmailAndPassword,
@@ -148,7 +148,7 @@ export default function LoginPage({ setUser }) {
         <div
           className="absolute inset-0 bg-cover bg-center"
           style={{
-            backgroundImage: `url(${bgImage})`,
+            backgroundImage: `url(${logo})`,
             filter: "brightness(0.5)",
           }}
         ></div>

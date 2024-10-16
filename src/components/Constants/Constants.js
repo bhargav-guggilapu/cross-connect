@@ -30,6 +30,8 @@ export const CUSTOMER_STATUS = {
   DRAFT: "Draft",
   IN_PROGRESS: "In Progress",
   DELIVERED: "Delivered",
+
+  SHIPPED: "Shipped",
 };
 
 export const IN_PROGRESS_STATUS = {

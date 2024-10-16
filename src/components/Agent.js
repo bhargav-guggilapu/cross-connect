@@ -27,7 +27,7 @@ const formatAgentDetails = (givenUser) => {
 };
 
 export default function Agent({ user, setUser }) {
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [selectedAgent, setSelectedAgent] = useState(
     user.selectedAgent ? formatAgentDetails(user.selectedAgent) : null
   );
@@ -35,6 +35,8 @@ export default function Agent({ user, setUser }) {
 
   useEffect(() => {
     const populateAgents = async () => {
+      setLoading(true);
+
       try {
         const userDetails = await getAgentsByZipCode(user.zipCode);
         setAgents(

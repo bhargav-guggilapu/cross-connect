@@ -113,6 +113,10 @@ export default function InProgress({ user }) {
     navigate("/delivered");
   };
 
+  const onTrackingHandle = (trackingId) => {
+    window.open(`https://www.fedex.com/fedextrack?trknbr=${trackingId}`);
+  };
+
   if (isLoading) {
     return <Loading />;
   }
@@ -184,7 +188,9 @@ export default function InProgress({ user }) {
             <div className="my-6">
               {getInProgressStep(item.inProgressStatus) === 1 && (
                 <p className="text-lg text-gray-700 mb-10 text-center">
-                  Waiting for Agent to confirm on your order.
+                  Waiting for agent{" "}
+                  {`${item.agent.firstName} ${item.agent.lastName}`} to confirm
+                  on your order.
                 </p>
               )}
               {getInProgressStep(item.inProgressStatus) === 2 && (
@@ -205,8 +211,9 @@ export default function InProgress({ user }) {
               )}
               {getInProgressStep(item.inProgressStatus) === 3 && (
                 <p className="text-lg text-gray-700 mb-10 text-center">
-                  Agent gathering items, will let you know the shipping cost
-                  estimate in short period.
+                  Agent {`${item.agent.firstName} ${item.agent.lastName}`}{" "}
+                  gathering items, will let you know the shipping cost estimate
+                  in short period.
                 </p>
               )}
               {getInProgressStep(item.inProgressStatus) === 4 && (
@@ -243,7 +250,10 @@ export default function InProgress({ user }) {
                 <div className="text-lg text-gray-700 mb-10 text-center">
                   <p>
                     Your package has been shipped, your tracking id is{" "}
-                    <span className="bg-orange-500 font-bold text-white px-3 py-1 rounded-full text-sm mr-2 cursor-pointer">
+                    <span
+                      className="bg-orange-500 font-bold text-white px-3 py-1 rounded-full text-sm mr-2 cursor-pointer"
+                      onClick={() => onTrackingHandle(item.trackingId)}
+                    >
                       {item.trackingId}
                     </span>
                   </p>

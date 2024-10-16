@@ -15,6 +15,7 @@ import { auth } from "./auth/firebase";
 import Loading from "./components/Loading";
 import { getUserByEmail } from "./services/Api";
 import { SnackbarProvider } from "./components/Helpers/SnackbarContext";
+import { fetchExchangeRate } from "./components/Helpers/staticFunctions";
 
 export default function App() {
   const [user, setUser] = useState(null);
@@ -38,6 +39,8 @@ export default function App() {
         setUser(null);
         setLoading(false);
       }
+      
+      fetchExchangeRate();
     });
 
     return () => unsubscribe();

@@ -2,62 +2,34 @@ import React, { useEffect, useState } from "react";
 import {
   Chat,
   ContentCopy,
-  Edit,
+  Inventory,
   Search,
   TrackChanges,
 } from "@mui/icons-material";
 import Button from "./Helpers/Button";
-import { COLORS, ROLES } from "./Constants/Constants";
+import {
+  ALERTS,
+  COLORS,
+  CUSTOMER_STATUS,
+  ORDER_STATUS,
+  ROLES,
+} from "./Constants/Constants";
 import AgentDashboard from "./AgentDashboard";
 import { useNavigate } from "react-router-dom";
-import { fetchExchangeRate } from "./Helpers/staticFunctions";
-
-const tableData = {
-  Delivered: [
-    { id: 123, agent: "TEST 1", zipCode: "78412", status: "Delivered" },
-    { id: 124, agent: "TEST 4", zipCode: "90001", status: "Delivered" },
-    { id: 125, agent: "TEST 5", zipCode: "60601", status: "Delivered" },
-  ],
-  "In Progress": [
-    {
-      orderId: "IP001",
-      customer: "John Doe",
-      product: "Widget A",
-      estimatedDelivery: "2023-06-15",
-    },
-    {
-      orderId: "IP002",
-      customer: "Jane Smith",
-      product: "Gadget B",
-      estimatedDelivery: "2023-06-18",
-    },
-    {
-      orderId: "IP003",
-      customer: "Bob Johnson",
-      product: "Tool C",
-      estimatedDelivery: "2023-06-20",
-    },
-  ],
-  Draft: [
-    {
-      draftId: "D001",
-      title: "New Product Launch",
-      lastEdited: "2023-06-01",
-      author: "Marketing Team",
-    },
-    {
-      draftId: "D002",
-      title: "Customer Survey",
-      lastEdited: "2023-06-03",
-      author: "Research Dept",
-    },
-  ],
-};
+import { useSnackbar } from "./Helpers/SnackbarContext";
+import { getOrder } from "../services/Api";
+import Loading from "./Loading";
+import ItemDetails from "./ItemDetails";
 
 export default function Dashboard({ user }) {
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState("Delivered");
-  const [localDate, setLocalDate] = useState();
+  const showSnackbar = useSnackbar();
+  const [isLoading, setIsLoading] = useState(false);
+  const [activeTab, setActiveTab] = useState(CUSTOMER_STATUS.DELIVERED);
+  const [localDate, setLocalDate] = useState(new Date());
+  const [orders, setOrders] = useState([]);
+  const [isOpen, setIsOpen] = useState(false);
+  const [selectedOrder, setSelectedOrder] = useState(null);
 
   const agentData = user.selectedAgent
     ? {
@@ -77,7 +49,21 @@ export default function Dashboard({ user }) {
       navigate("/account");
     }
 
-    getTime();
+    const fetchOrders = async () => {
+      setIsLoading(true);
+      try {
+        const order = await getOrder({
+          customer: user._id,
+          orderStatus: ORDER_STATUS.ACTIVE,
+        });
+        setOrders(order.data);
+      } catch (error) {
+        console.error("Error fetching order:", error);
+      }
+      setIsLoading(false);
+    };
+
+    fetchOrders();
 
     const intervalId = setInterval(() => {
       setLocalDate((prevTime) => {
@@ -90,13 +76,18 @@ export default function Dashboard({ user }) {
     return () => clearInterval(intervalId);
   }, [user, navigate]);
 
-  useEffect(() => {
-    fetchExchangeRate();
-  }, []);
+  const getLength = (tab) => {
+    return orders.filter((order) => {
+      if (order.customerStatus === CUSTOMER_STATUS.IN_PROGRESS) {
+        return order.inProgressStatus === tab;
+      }
+      return order.customerStatus === tab;
+    }).length;
+  };
 
-  const handleCopyClick = (text) => {
+  const handleCopyClick = (text, field) => {
     navigator.clipboard.writeText(text).then(() => {
-      //   alert("Copied to clipboard!");
+      showSnackbar(`${field} copied to clipboard`, ALERTS.SUCCESS);
     });
   };
 
@@ -106,12 +97,27 @@ export default function Dashboard({ user }) {
 
   const renderTableHeaders = () => {
     switch (activeTab) {
-      case "Delivered":
-        return ["Order Id", "Agent", "Zip Code", ""];
-      case "In Progress":
-        return ["Order Id", "Customer", "Product", "Estimated Delivery", ""];
-      case "Draft":
-        return ["Draft Id", "Title", "Last Edited", "Author", ""];
+      case CUSTOMER_STATUS.DELIVERED:
+        return [
+          "Order Id",
+          "Zip Code",
+          "Agent Name",
+          "Delivered Date",
+          "Items Cost",
+          "Shipping Cost",
+          "Package Weight",
+          "",
+        ];
+      case CUSTOMER_STATUS.SHIPPED:
+        return [
+          "Order Id",
+          "Zip Code",
+          "Agent Name",
+          "Items Cost",
+          "Shipping Cost",
+          "Package Weight",
+          "",
+        ];
       default:
         return [];
     }
@@ -119,30 +125,27 @@ export default function Dashboard({ user }) {
 
   const renderTableRow = (item) => {
     switch (activeTab) {
-      case "Delivered":
+      case CUSTOMER_STATUS.DELIVERED:
         return (
           <>
-            <td className="p-3">{item.id}</td>
-            <td className="p-3">{item.agent}</td>
-            <td className="p-3">{item.zipCode}</td>
+            <td className="p-3">{item._id}</td>
+            <td className="p-3">{item.agent.address.zipCode}</td>
+            <td className="p-3">{`${item.agent.firstName} ${item.agent.lastName}`}</td>
+            <td className="p-3">{item.deliveredDate}</td>
+            <td className="p-3">{item.itemsCost}</td>
+            <td className="p-3">{item.shippingCost}</td>
+            <td className="p-3">{item.packageWeight}</td>
           </>
         );
-      case "In Progress":
+      case CUSTOMER_STATUS.SHIPPED:
         return (
           <>
-            <td className="p-3">{item.orderId}</td>
-            <td className="p-3">{item.customer}</td>
-            <td className="p-3">{item.product}</td>
-            <td className="p-3">{item.estimatedDelivery}</td>
-          </>
-        );
-      case "Draft":
-        return (
-          <>
-            <td className="p-3">{item.draftId}</td>
-            <td className="p-3">{item.title}</td>
-            <td className="p-3">{item.lastEdited}</td>
-            <td className="p-3">{item.author}</td>
+            <td className="p-3">{item._id}</td>
+            <td className="p-3">{item.agent.address.zipCode}</td>
+            <td className="p-3">{`${item.agent.firstName} ${item.agent.lastName}`}</td>
+            <td className="p-3">{item.itemsCost}</td>
+            <td className="p-3">{item.shippingCost}</td>
+            <td className="p-3">{item.packageWeight}</td>
           </>
         );
       default:
@@ -160,16 +163,18 @@ export default function Dashboard({ user }) {
       .join("");
   };
 
-  const getTime = async (city, country) => {
-    // const response = await fetch(
-    //   `https://api.ipgeolocation.io/timezone?apiKey=${process.env.REACT_APP_TIME_ZONE_API_KEY}&location=${city}, ${country}`
-    // );
-    // const data = await response.json();
-    // const initialTime = new Date(data.date_time_txt);
-    // setLocalDate(initialTime);
-
-    setLocalDate(new Date());
+  const openDialog = (order) => {
+    setSelectedOrder(order);
+    setIsOpen(true);
   };
+
+  const onTrackingHandle = (trackingId) => {
+    window.open(`https://www.fedex.com/fedextrack?trknbr=${trackingId}`);
+  };
+
+  if (isLoading) {
+    return <Loading />;
+  }
 
   return (
     <div className="flex-1 overflow-auto p-6 bg-orange-50">
@@ -233,7 +238,7 @@ export default function Dashboard({ user }) {
                       <ContentCopy
                         className="absolute right-2 top-1/2 transform -translate-y-1/2 w-5 h-5 text-orange-400 cursor-pointer hover:text-orange-600"
                         onClick={() =>
-                          handleCopyClick(agentData[toCamelCase(field)])
+                          handleCopyClick(agentData[toCamelCase(field)], field)
                         }
                       />
                     </div>
@@ -260,7 +265,7 @@ export default function Dashboard({ user }) {
                       <ContentCopy
                         className="absolute right-2 top-1/2 transform -translate-y-1/2 w-5 h-5 text-orange-400 cursor-pointer hover:text-orange-600"
                         onClick={() =>
-                          handleCopyClick(agentData[toCamelCase(field)])
+                          handleCopyClick(agentData[toCamelCase(field)], field)
                         }
                       />
                     </div>
@@ -287,7 +292,7 @@ export default function Dashboard({ user }) {
                       <ContentCopy
                         className="absolute right-2 top-1/2 transform -translate-y-1/2 w-5 h-5 text-orange-400 cursor-pointer hover:text-orange-600"
                         onClick={() =>
-                          handleCopyClick(agentData[toCamelCase(field)])
+                          handleCopyClick(agentData[toCamelCase(field)], field)
                         }
                       />
                     </div>
@@ -313,58 +318,99 @@ export default function Dashboard({ user }) {
           )}
 
           <div className="p-6 bg-white rounded-lg shadow-md border border-orange-200">
-            <h2
-              className="text-xl font-bold mb-4 text-orange-800"
-              style={{ fontFamily: "Rajdhani, sans-serif" }}
-            >
-              Your Details
-            </h2>
             <div className="flex space-x-4 mb-4">
-              {Object.keys(tableData).map((tab) => (
-                <Button
-                  key={tab}
-                  customStyles={`${
-                    activeTab === tab ? COLORS.ORANGE_500 : COLORS.ORANGE_100
-                  }`}
-                  onClick={() => handleTabClick(tab)}
-                  text={`${tab} (${tableData[tab].length})`}
-                />
-              ))}
+              {[CUSTOMER_STATUS.DELIVERED, CUSTOMER_STATUS.SHIPPED].map(
+                (tab) => (
+                  <Button
+                    key={tab}
+                    customStyles={`${
+                      activeTab === tab ? COLORS.ORANGE_500 : COLORS.ORANGE_100
+                    }`}
+                    onClick={() => handleTabClick(tab)}
+                    text={`${tab} (${getLength(tab)})`}
+                  />
+                )
+              )}
             </div>
             <div className="overflow-x-auto">
-              <table className="w-full bg-white shadow-md rounded-lg overflow-hidden">
-                <thead className="bg-orange-500 text-white">
-                  <tr>
-                    {renderTableHeaders().map((header, index) => (
-                      <th key={index} className="p-3 text-left">
-                        {header}
-                      </th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {tableData[activeTab].map((item, index) => (
-                    <tr
-                      key={index}
-                      className={index % 2 === 0 ? "bg-orange-100" : ""}
-                    >
-                      {renderTableRow(item)}
-                      <td className="p-3">
-                        <Button
-                          icon={activeTab === "Draft" ? Edit : TrackChanges}
-                          bgColor={COLORS.ORANGE_500}
-                          // onClick={handleChangeAgent}
-                          text={activeTab === "Draft" ? "Edit" : "Track Order"}
-                        />
-                      </td>
+              {orders.filter((order) => {
+                if (order.customerStatus === CUSTOMER_STATUS.IN_PROGRESS) {
+                  return order.inProgressStatus === activeTab;
+                }
+                return order.customerStatus === activeTab;
+              }).length > 0 ? (
+                <table className="w-full bg-white shadow-md rounded-lg overflow-hidden">
+                  <thead className="bg-orange-500 text-white">
+                    <tr>
+                      {renderTableHeaders().map((header, index) => (
+                        <th key={index} className="p-3 text-left">
+                          {header}
+                        </th>
+                      ))}
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody>
+                    {orders
+                      .filter((order) => {
+                        if (
+                          order.customerStatus === CUSTOMER_STATUS.IN_PROGRESS
+                        ) {
+                          return order.inProgressStatus === activeTab;
+                        }
+                        return order.customerStatus === activeTab;
+                      })
+                      .map((item, index) => (
+                        <tr
+                          key={index}
+                          className={index % 2 === 0 ? "bg-orange-100" : ""}
+                        >
+                          {renderTableRow(item)}
+                          <td className="p-3">
+                            <div className="flex justify-center items-center space-x-5">
+                              {(activeTab === CUSTOMER_STATUS.DELIVERED ||
+                                activeTab === CUSTOMER_STATUS.SHIPPED) && (
+                                <Button
+                                  icon={Inventory}
+                                  bgColor={COLORS.ORANGE_500}
+                                  onClick={() => openDialog(item)}
+                                  text="Items"
+                                />
+                              )}
+
+                              {activeTab === CUSTOMER_STATUS.SHIPPED && (
+                                <Button
+                                  icon={TrackChanges}
+                                  bgColor={COLORS.GREEN_600}
+                                  onClick={() =>
+                                    onTrackingHandle(item.trackingId)
+                                  }
+                                  text="Track Order"
+                                />
+                              )}
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                  </tbody>
+                </table>
+              ) : (
+                <div className="mb-6 p-6 bg-white rounded-lg shadow-md border border-orange-200">
+                  <div className="flex flex-col justify-center items-center">
+                    <h2 className="text-xl">
+                      Your {activeTab} section is empty
+                    </h2>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>
       )}
+      <ItemDetails
+        isOpen={isOpen}
+        selectedOrder={selectedOrder}
+        setIsOpen={setIsOpen}
+      />
     </div>
   );
 }

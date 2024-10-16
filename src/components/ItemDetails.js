@@ -97,7 +97,9 @@ function ItemDetails({
     setOrder((prev) => ({
       ...prev,
       items: prev.items.map((item, i) =>
-        i === index ? { ...item, cost: value } : item
+        i === index
+          ? { ...item, cost: value === "" ? 0 : parseFloat(value) }
+          : item
       ),
     }));
   };
@@ -175,7 +177,7 @@ function ItemDetails({
                               name="cost"
                               placeholder="Cost"
                               className={`w-full pl-6 pr-2 py-2 border border-orange-200 rounded focus:outline-none focus:ring-2 focus:ring-orange-300`}
-                              value={item.cost}
+                              value={item.cost || 0}
                               onChange={(e) =>
                                 handleCostChange(index, e.target.value)
                               }
