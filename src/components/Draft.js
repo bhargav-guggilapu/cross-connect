@@ -8,6 +8,7 @@ import {
   ALERTS,
   COLORS,
   CUSTOMER_STATUS,
+  IN_PROGRESS_STATUS,
   ORDER_STATUS,
   UNITS,
 } from "./Constants/Constants";
@@ -169,7 +170,10 @@ export default function Draft({ user }) {
       setIsLoading(true);
 
       await updateOrder(
-        { customerStatus: CUSTOMER_STATUS.IN_PROGRESS },
+        {
+          customerStatus: CUSTOMER_STATUS.IN_PROGRESS,
+          inProgressStatus: IN_PROGRESS_STATUS.ORDER_PLACED,
+        },
         {
           customer: user._id,
           agent: user.selectedAgent._id,
@@ -248,13 +252,13 @@ export default function Draft({ user }) {
                     key={item._id}
                     className={index % 2 === 0 ? "bg-orange-100" : ""}
                   >
-                    <td className="p-3">{item.name}</td>
-                    <td className="p-3">{item.description}</td>
+                    <td className="p-3">{item.name || `-`}</td>
+                    <td className="p-3">{item.description || `-`}</td>
                     <td className="p-3">{`${formatQuantityUnit(
                       item.quantity,
                       item.unit
-                    )}`}</td>
-                    <td className="p-3">{item.storeName}</td>
+                    ) || `-`}`}</td>
+                    <td className="p-3">{item.storeName || `-`}</td>
                     <td className="p-3">
                       <div className="flex">
                         <Button
@@ -281,7 +285,7 @@ export default function Draft({ user }) {
         <div className="mb-6 p-6 bg-white rounded-lg shadow-md border border-orange-200">
           <div className="flex flex-col justify-center items-center">
             <h2 className="text-xl mb-4">
-              You have an In Progress order with
+              You don't have any drafts with
               <span className="text-orange-800">
                 {" "}
                 {user.selectedAgent.firstName}
@@ -297,7 +301,7 @@ export default function Draft({ user }) {
         </div>
       )}
 
-      <div className="mt-8 grid grid-cols-5 gap-4">
+      {order && <div className="mt-8 grid grid-cols-5 gap-4">
         <div className="flex flex-col h-[74px]">
           <input
             type="text"
@@ -388,7 +392,7 @@ export default function Draft({ user }) {
             text={editingId == null ? "Add Item" : "Update Item"}
           />
         </div>
-      </div>
+      </div>}
     </div>
   );
 }
