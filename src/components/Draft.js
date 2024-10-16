@@ -59,15 +59,12 @@ export default function Draft({ user }) {
     fetchOrder();
   }, [user]);
 
-  const updateItemsInOrder = async (items) => {
+  const updateItemsInOrder = async (items, id) => {
     setIsLoading(true);
     const updatedOrder = await updateOrder(
       { items },
       {
-        customer: user._id,
-        agent: user.selectedAgent._id,
-        customerStatus: CUSTOMER_STATUS.DRAFT,
-        orderStatus: ORDER_STATUS.ACTIVE,
+        _id: id,
       }
     );
 
@@ -96,11 +93,12 @@ export default function Draft({ user }) {
         await updateItemsInOrder(
           order.items.map((item) =>
             item._id === editingId ? { ...newItem, _id: editingId } : item
-          )
+          ),
+          order._id
         );
         setEditingId(null);
       } else {
-        await updateItemsInOrder([...order.items, { ...newItem }]);
+        await updateItemsInOrder([...order.items, { ...newItem }], order._id);
       }
       setNewItem({
         name: "",
@@ -122,11 +120,14 @@ export default function Draft({ user }) {
   };
 
   const deleteItem = async (id) => {
-    await updateItemsInOrder(order.items.filter((item) => item._id !== id));
+    await updateItemsInOrder(
+      order.items.filter((item) => item._id !== id),
+      order._id
+    );
   };
 
   const clearTable = async () => {
-    await updateItemsInOrder([]);
+    await updateItemsInOrder([], order._id);
     setNewItem({
       name: "",
       description: "",
@@ -175,10 +176,7 @@ export default function Draft({ user }) {
           inProgressStatus: IN_PROGRESS_STATUS.ORDER_PLACED,
         },
         {
-          customer: user._id,
-          agent: user.selectedAgent._id,
-          customerStatus: CUSTOMER_STATUS.DRAFT,
-          orderStatus: ORDER_STATUS.ACTIVE,
+          _id: order._id,
         }
       );
 
@@ -218,18 +216,22 @@ export default function Draft({ user }) {
           Your Draft
         </h1>
         <div className="flex space-x-4">
-          <Button
-            icon={AddShoppingCart}
-            bgColor={COLORS.GREEN_600}
-            onClick={handlePlaceOrder}
-            text="Place Order"
-          />
-          <Button
-            icon={Clear}
-            bgColor={COLORS.RED_100}
-            onClick={clearTable}
-            text="Clear All"
-          />
+          {order && (
+            <Button
+              icon={AddShoppingCart}
+              bgColor={COLORS.GREEN_600}
+              onClick={handlePlaceOrder}
+              text="Place Order"
+            />
+          )}
+          {order && (
+            <Button
+              icon={Clear}
+              bgColor={COLORS.RED_100}
+              onClick={clearTable}
+              text="Clear All"
+            />
+          )}
         </div>
       </div>
 
@@ -254,10 +256,9 @@ export default function Draft({ user }) {
                   >
                     <td className="p-3">{item.name || `-`}</td>
                     <td className="p-3">{item.description || `-`}</td>
-                    <td className="p-3">{`${formatQuantityUnit(
-                      item.quantity,
-                      item.unit
-                    ) || `-`}`}</td>
+                    <td className="p-3">{`${
+                      formatQuantityUnit(item.quantity, item.unit) || `-`
+                    }`}</td>
                     <td className="p-3">{item.storeName || `-`}</td>
                     <td className="p-3">
                       <div className="flex">
@@ -301,98 +302,100 @@ export default function Draft({ user }) {
         </div>
       )}
 
-      {order && <div className="mt-8 grid grid-cols-5 gap-4">
-        <div className="flex flex-col h-[74px]">
-          <input
-            type="text"
-            name="name"
-            placeholder="Name"
-            className={`w-full p-2 pr-8 border ${
-              touched.name && errors.name
-                ? "border-red-500"
-                : "border-orange-200"
-            } rounded focus:outline-none focus:ring-2 focus:ring-orange-300`}
-            value={newItem.name}
-            onChange={handleInputChange}
-            onBlur={handleBlur}
-          />
-          {touched.name && errors.name && (
-            <p className="text-red-500 text-xs mt-1">{errors.name}</p>
-          )}
-        </div>
-        <div className="flex flex-col h-[74px]">
-          <textarea
-            name="description"
-            placeholder="Description"
-            className="w-full p-2 pr-8 border border-orange-200 rounded focus:outline-none focus:ring-2 focus:ring-orange-300 resize-y"
-            value={newItem.description}
-            onChange={handleInputChange}
-            rows={1}
-          />
-        </div>
-        <div className="flex flex-col h-[74px]">
-          <div
-            className={`flex ${
-              quantityUnitFocused ? "ring-2 ring-orange-300" : ""
-            } rounded-md`}
-          >
+      {order && (
+        <div className="mt-8 grid grid-cols-5 gap-4">
+          <div className="flex flex-col h-[74px]">
             <input
-              type="number"
-              name="quantity"
-              placeholder="Quantity"
-              className={`w-2/3 p-2 pr-8 border-t border-b border-l ${
-                touched.quantity && errors.quantity
+              type="text"
+              name="name"
+              placeholder="Name"
+              className={`w-full p-2 pr-8 border ${
+                touched.name && errors.name
                   ? "border-red-500"
                   : "border-orange-200"
-              } rounded-l focus:outline-none`}
-              value={newItem.quantity}
+              } rounded focus:outline-none focus:ring-2 focus:ring-orange-300`}
+              value={newItem.name}
               onChange={handleInputChange}
-              onFocus={handleFocus}
               onBlur={handleBlur}
             />
-            <select
-              name="unit"
-              className={`w-1/3 p-2 border-t border-b border-r ${
-                touched.quantity && errors.quantity
-                  ? "border-red-500"
-                  : "border-orange-200"
-              } rounded-r focus:outline-none`}
-              value={newItem.unit}
-              onChange={handleInputChange}
-              onFocus={handleFocus}
-              onBlur={handleBlur}
-            >
-              {UNITS.map((unit) => (
-                <option key={unit} value={unit}>
-                  {unit}
-                </option>
-              ))}
-            </select>
+            {touched.name && errors.name && (
+              <p className="text-red-500 text-xs mt-1">{errors.name}</p>
+            )}
           </div>
-          {touched.quantity && errors.quantity && (
-            <p className="text-red-500 text-xs mt-1">{errors.quantity}</p>
-          )}
+          <div className="flex flex-col h-[74px]">
+            <textarea
+              name="description"
+              placeholder="Description"
+              className="w-full p-2 pr-8 border border-orange-200 rounded focus:outline-none focus:ring-2 focus:ring-orange-300 resize-y"
+              value={newItem.description}
+              onChange={handleInputChange}
+              rows={1}
+            />
+          </div>
+          <div className="flex flex-col h-[74px]">
+            <div
+              className={`flex ${
+                quantityUnitFocused ? "ring-2 ring-orange-300" : ""
+              } rounded-md`}
+            >
+              <input
+                type="number"
+                name="quantity"
+                placeholder="Quantity"
+                className={`w-2/3 p-2 pr-8 border-t border-b border-l ${
+                  touched.quantity && errors.quantity
+                    ? "border-red-500"
+                    : "border-orange-200"
+                } rounded-l focus:outline-none`}
+                value={newItem.quantity}
+                onChange={handleInputChange}
+                onFocus={handleFocus}
+                onBlur={handleBlur}
+              />
+              <select
+                name="unit"
+                className={`w-1/3 p-2 border-t border-b border-r ${
+                  touched.quantity && errors.quantity
+                    ? "border-red-500"
+                    : "border-orange-200"
+                } rounded-r focus:outline-none`}
+                value={newItem.unit}
+                onChange={handleInputChange}
+                onFocus={handleFocus}
+                onBlur={handleBlur}
+              >
+                {UNITS.map((unit) => (
+                  <option key={unit} value={unit}>
+                    {unit}
+                  </option>
+                ))}
+              </select>
+            </div>
+            {touched.quantity && errors.quantity && (
+              <p className="text-red-500 text-xs mt-1">{errors.quantity}</p>
+            )}
+          </div>
+          <div className="flex flex-col h-[74px]">
+            <input
+              type="text"
+              name="storeName"
+              placeholder="Store Name"
+              className="w-full p-2 pr-8 border border-orange-200 rounded focus:outline-none focus:ring-2 focus:ring-orange-300"
+              value={newItem.storeName}
+              onChange={handleInputChange}
+            />
+          </div>
+          <div className="flex flex-row h-[74px] justify-center">
+            <Button
+              icon={editingId == null ? Add : Edit}
+              bgColor={COLORS.ORANGE_500}
+              onClick={addItem}
+              customStyles="max-w-fit h-[42px]"
+              text={editingId == null ? "Add Item" : "Update Item"}
+            />
+          </div>
         </div>
-        <div className="flex flex-col h-[74px]">
-          <input
-            type="text"
-            name="storeName"
-            placeholder="Store Name"
-            className="w-full p-2 pr-8 border border-orange-200 rounded focus:outline-none focus:ring-2 focus:ring-orange-300"
-            value={newItem.storeName}
-            onChange={handleInputChange}
-          />
-        </div>
-        <div className="flex flex-row h-[74px] justify-center">
-          <Button
-            icon={editingId == null ? Add : Edit}
-            bgColor={COLORS.ORANGE_500}
-            onClick={addItem}
-            customStyles="max-w-fit h-[42px]"
-            text={editingId == null ? "Add Item" : "Update Item"}
-          />
-        </div>
-      </div>}
+      )}
     </div>
   );
 }

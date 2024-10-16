@@ -37,13 +37,17 @@ export const IN_PROGRESS_STATUS = {
   COST_ESTIMATE: "Cost Estimate",
   ITEMS_GATHERING: "Items Gathering",
   SHIPPING_ESTIMATE: "Shipping Estimate",
+  ORDER_SHIPPED: "Order Shipped",
   SHIPPED: "Shipped",
 };
 
 export const UNITS = ["KG(s)", "Liter(s)", "Piece(s)"];
+
 export const ALERTS = {
   SUCCESS: "success",
   INFO: "info",
   WARNING: "warning",
   ERROR: "error",
 };
+
+export const CURSOR_NOT_ALLOWED = "cursor-not-allowed";

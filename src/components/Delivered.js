@@ -72,10 +72,10 @@ const deliveries = [
 
 export default function Delivered() {
   const [isOpen, setIsOpen] = useState(false);
-  const [selectedItems, setSelectedItems] = useState([]);
+  const [selectedOrder, setSelectedOrder] = useState(null);
 
-  const openDialog = (items) => {
-    setSelectedItems(items);
+  const openDialog = (order) => {
+    setSelectedOrder(order);
     setIsOpen(true);
   };
 
@@ -113,7 +113,7 @@ export default function Delivered() {
                   <Button
                     icon={Inventory}
                     bgColor={COLORS.ORANGE_500}
-                    onClick={() => openDialog(item.items)}
+                    onClick={() => openDialog(item)}
                     text="Items"
                   />
                 </td>
@@ -124,7 +124,7 @@ export default function Delivered() {
       </div>
       <ItemDetails
         isOpen={isOpen}
-        selectedItems={selectedItems}
+        selectedOrder={selectedOrder}
         setIsOpen={setIsOpen}
         title="In Progress"
       />

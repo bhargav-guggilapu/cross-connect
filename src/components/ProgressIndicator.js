@@ -9,6 +9,7 @@ const steps = [
   "Cost Estimate",
   "Items Gathering",
   "Shipping Estimate",
+  "Order Shipped",
   "Shipped",
 ];
 

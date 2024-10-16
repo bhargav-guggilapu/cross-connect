@@ -23,8 +23,10 @@ export const getInProgressStep = (inProgressStatus) => {
       return 3;
     case IN_PROGRESS_STATUS.SHIPPING_ESTIMATE:
       return 4;
-    case IN_PROGRESS_STATUS.SHIPPED:
+    case IN_PROGRESS_STATUS.ORDER_SHIPPED:
       return 5;
+    case IN_PROGRESS_STATUS.SHIPPED:
+      return 6;
     default:
       return 0;
   }

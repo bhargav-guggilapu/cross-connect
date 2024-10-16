@@ -1,21 +1,24 @@
 import React, { useEffect, useState } from "react";
 import Button from "./Helpers/Button";
-import { AGENT_STATUS, COLORS } from "./Constants/Constants";
+import {
+  AGENT_STATUS,
+  COLORS,
+  IN_PROGRESS_STATUS,
+} from "./Constants/Constants";
 import { Chat, CheckCircle, Inventory } from "@mui/icons-material";
 import ItemDetails from "./ItemDetails";
-import { getOrdersByAgent } from "../services/Api";
+import { getOrdersByAgent, updateOrder } from "../services/Api";
 import Loading from "./Loading";
 
 function AgentDashboard({ user }) {
   const [isLoading, setIsLoading] = useState(false);
   const [activeTab, setActiveTab] = useState(AGENT_STATUS.ORDERED);
-  const [tableData, setTableData] = useState([]);
   const [isOpen, setIsOpen] = useState(false);
-  const [selectedItems, setSelectedItems] = useState([]);
+  const [selectedOrder, setSelectedOrder] = useState(null);
   const [orders, setOrders] = useState([]);
 
   useEffect(() => {
-    const fetchUserDetails = async () => {
+    const fetchOrdersAsync = async () => {
       setIsLoading(true);
 
       try {
@@ -27,30 +30,50 @@ function AgentDashboard({ user }) {
       setIsLoading(false);
     };
 
-    fetchUserDetails();
+    fetchOrdersAsync();
   }, [user]);
 
-  const openDialog = (items) => {
-    setSelectedItems(items);
+  const fetchOrders = async () => {
+    setIsLoading(true);
+
+    try {
+      const ordersData = await getOrdersByAgent(user._id);
+      setOrders(ordersData.data);
+    } catch (error) {
+      console.error("Error fetching customers:", error);
+    }
+    setIsLoading(false);
+  };
+
+  const openDialog = (order) => {
+    setSelectedOrder(order);
     setIsOpen(true);
   };
 
-  const handleInputChange = (customerId, field, value) => {
-    setTableData((prevData) => ({
-      ...prevData,
-      [activeTab]: prevData[activeTab].map((item) =>
-        item.customerId === customerId ? { ...item, [field]: value } : item
-      ),
-    }));
+  const handleInputChange = (id, field, value) => {
+    setOrders((prevOrders) =>
+      prevOrders.map((order) =>
+        order._id === id ? { ...order, [field]: value } : order
+      )
+    );
   };
 
-  const handleConfirm = (customerId) => {
-    setTableData((prevData) => ({
-      ...prevData,
-      [activeTab]: prevData[activeTab].map((item) =>
-        item.customerId === customerId ? { ...item, confirmed: true } : item
-      ),
-    }));
+  const handleConfirm = async (order) => {
+    setIsLoading(true);
+
+    await updateOrder(
+      {
+        ...order,
+        inProgressStatus:
+          order.inProgressStatus === IN_PROGRESS_STATUS.ORDER_SHIPPED
+            ? IN_PROGRESS_STATUS.SHIPPED
+            : IN_PROGRESS_STATUS.SHIPPING_ESTIMATE,
+      },
+      { _id: order._id }
+    );
+
+    fetchOrders();
+    setIsLoading(false);
   };
 
   const renderTableHeadersAgent = () => {
@@ -63,8 +86,8 @@ function AgentDashboard({ user }) {
           "Name",
           "Email",
           "Items Cost",
-          "Weight",
           "Shipping Cost",
+          "Weight",
           "",
         ];
       case AGENT_STATUS.SHIPPED:
@@ -74,8 +97,8 @@ function AgentDashboard({ user }) {
           "Name",
           "Email",
           "Items Cost",
-          "Weight",
           "Shipping Cost",
+          "Weight",
           "Tracking ID",
           "",
         ];
@@ -102,51 +125,57 @@ function AgentDashboard({ user }) {
             <td className="p-3">{item.customer.email}</td>
             <td className="p-3">₹ {item.itemsCost}</td>
             <td className="p-3">
-              <div className="relative max-w-28">
-                <span className="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-500">
-                  ₹
-                </span>
-                <input
-                  type="number"
-                  name="shippingCost"
-                  placeholder="Shipping Cost"
-                  className={`w-full pr-6 pl-2 py-2 border border-orange-200 rounded focus:outline-none focus:ring-2 focus:ring-orange-300 ${
-                    item.confirmed && "cursor-not-allowed"
-                  }`}
-                  value={item?.shippingCost}
-                  onChange={(e) =>
-                    handleInputChange(
-                      item.customerId,
-                      "shippingCost",
-                      e.target.value
-                    )
-                  }
-                  aria-label="Shipping Cost in Rupees"
-                  disabled={item.confirmed}
-                />
-              </div>
+              {item.inProgressStatus !==
+              IN_PROGRESS_STATUS.SHIPPING_ESTIMATE ? (
+                <div className="relative max-w-28">
+                  <span className="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-500">
+                    ₹
+                  </span>
+                  <input
+                    type="number"
+                    name="shippingCost"
+                    className={`w-full pr-2 pl-5 py-2 border border-orange-200 rounded focus:outline-none focus:ring-2 focus:ring-orange-300`}
+                    value={item?.shippingCost}
+                    onChange={(e) =>
+                      handleInputChange(
+                        item._id,
+                        "shippingCost",
+                        e.target.value
+                      )
+                    }
+                    aria-label="Shipping Cost in Rupees"
+                  />
+                </div>
+              ) : (
+                `₹ ${item.shippingCost}`
+              )}
             </td>
             <td className="p-3">
-              <div className="relative max-w-28">
-                <input
-                  type="number"
-                  name="weight"
-                  placeholder="Weight"
-                  className={`w-full pl-6 pr-2 py-2 border border-orange-200 rounded focus:outline-none focus:ring-2 focus:ring-orange-300 ${
-                    item.confirmed && "cursor-not-allowed"
-                  }`}
-                  value={item.packageWeight}
-                  onChange={(e) =>
-                    handleInputChange(item.customerId, "weight", e.target.value)
-                  }
-                  disabled={item.confirmed}
-                  aria-label="Weight in KGs"
-                />
+              {item.inProgressStatus !==
+              IN_PROGRESS_STATUS.SHIPPING_ESTIMATE ? (
+                <div className="relative max-w-28">
+                  <input
+                    type="number"
+                    name="packageWeight"
+                    className={`w-full pl-2 pr-8 py-2 border border-orange-200 rounded focus:outline-none focus:ring-2 focus:ring-orange-300`}
+                    value={item?.packageWeight}
+                    onChange={(e) =>
+                      handleInputChange(
+                        item._id,
+                        "packageWeight",
+                        e.target.value
+                      )
+                    }
+                    aria-label="Weight in KGs"
+                  />
 
-                <span className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-500">
-                  KG
-                </span>
-              </div>
+                  <span className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-500">
+                    KG
+                  </span>
+                </div>
+              ) : (
+                `₹ ${item.packageWeight}`
+              )}
             </td>
           </>
         );
@@ -160,24 +189,20 @@ function AgentDashboard({ user }) {
             <td className="p-3">{item.packageWeight} KG</td>
             <td className="p-3">₹ {item.shippingCost}</td>
             <td className="p-3">
-              <input
-                type="text"
-                name="tr"
-                placeholder="Tracking ID"
-                className={`w-full p-2 pr-8 border border-orange-200 rounded focus:outline-none focus:ring-2 focus:ring-orange-300 ${
-                  item.confirmed && "cursor-not-allowed"
-                }`}
-                value={item.trackingId}
-                onChange={(e) =>
-                  handleInputChange(
-                    item.customerId,
-                    "trackingId",
-                    e.target.value
-                  )
-                }
-                disabled={item.confirmed}
-                aria-label="Tracking ID"
-              />
+              {item.inProgressStatus !== IN_PROGRESS_STATUS.SHIPPED ? (
+                <input
+                  type="text"
+                  name="trackingId"
+                  className={`w-full p-2 pr-8 border border-orange-200 rounded focus:outline-none focus:ring-2 focus:ring-orange-300`}
+                  value={item.trackingId}
+                  onChange={(e) =>
+                    handleInputChange(item._id, "trackingId", e.target.value)
+                  }
+                  aria-label="Tracking ID"
+                />
+              ) : (
+                item.trackingId
+              )}
             </td>
           </>
         );
@@ -230,61 +255,74 @@ function AgentDashboard({ user }) {
         ))}
       </div>
       <div className="overflow-x-auto">
-        <table className="w-full bg-white shadow-md rounded-lg overflow-hidden">
-          <thead className="bg-orange-500 text-white">
-            <tr>
-              {renderTableHeadersAgent().map((header, index) => (
-                <th key={index} className="p-3 text-left">
-                  {header}
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {orders
-              .filter((order) => order.agentStatus === activeTab)
-              .map((item, index) => (
-                <tr
-                  key={index}
-                  className={index % 2 === 0 ? "bg-orange-100" : ""}
-                >
-                  {renderTableRowAgent(item)}
-                  <td className="p-3">
-                    <div className="flex justify-center items-center space-x-4">
-                      {(activeTab === AGENT_STATUS.SHIPPED ||
-                        activeTab === AGENT_STATUS.CONFIRMED) && (
+        {orders.filter((order) => order.agentStatus === activeTab).length >
+        0 ? (
+          <table className="w-full bg-white shadow-md rounded-lg overflow-hidden">
+            <thead className="bg-orange-500 text-white">
+              <tr>
+                {renderTableHeadersAgent().map((header, index) => (
+                  <th key={index} className="p-3 text-left">
+                    {header}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {orders
+                .filter((order) => order.agentStatus === activeTab)
+                .map((item, index) => (
+                  <tr
+                    key={index}
+                    className={index % 2 === 0 ? "bg-orange-100" : ""}
+                  >
+                    {renderTableRowAgent(item)}
+                    <td className="p-3">
+                      <div className="flex justify-center items-center space-x-4">
+                        {(activeTab === AGENT_STATUS.SHIPPED ||
+                          activeTab === AGENT_STATUS.CONFIRMED) &&
+                          item.inProgressStatus !==
+                            IN_PROGRESS_STATUS.SHIPPING_ESTIMATE &&
+                          item.inProgressStatus !==
+                            IN_PROGRESS_STATUS.SHIPPED && (
+                            <Button
+                              icon={CheckCircle}
+                              bgColor={COLORS.GREY_500}
+                              onClick={() => handleConfirm(item)}
+                              text="Add"
+                            />
+                          )}
                         <Button
-                          icon={CheckCircle}
-                          bgColor={COLORS.GREY_500}
-                          onClick={() => handleConfirm(item.customerId)}
-                          disabled={item.confirmed}
-                          text="Add"
+                          icon={Inventory}
+                          bgColor={COLORS.ORANGE_500}
+                          onClick={() => openDialog(item)}
+                          text="Items"
                         />
-                      )}
-                      <Button
-                        icon={Inventory}
-                        bgColor={COLORS.ORANGE_500}
-                        onClick={() => openDialog(item.items)}
-                        text="Items"
-                      />
-                      <Button
-                        icon={Chat}
-                        bgColor={COLORS.GREEN_600}
-                        // onClick={handleChangeAgent}
-                        text="Chat"
-                      />
-                    </div>
-                  </td>
-                </tr>
-              ))}
-          </tbody>
-        </table>
+                        <Button
+                          icon={Chat}
+                          bgColor={COLORS.GREEN_600}
+                          // onClick={handleChangeAgent}
+                          text="Chat"
+                        />
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+            </tbody>
+          </table>
+        ) : (
+          <div className="mb-6 p-6 bg-white rounded-lg shadow-md border border-orange-200">
+            <div className="flex flex-col justify-center items-center">
+              <h2 className="text-xl">You {activeTab} section is empty</h2>
+            </div>
+          </div>
+        )}
       </div>
       <ItemDetails
         isOpen={isOpen}
-        selectedItems={selectedItems}
+        selectedOrder={selectedOrder}
         setIsOpen={setIsOpen}
         enableUpdate={activeTab === AGENT_STATUS.ORDERED}
+        fetchOrders={fetchOrders}
       />
     </div>
   );
