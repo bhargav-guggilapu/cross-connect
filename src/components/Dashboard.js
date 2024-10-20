@@ -20,6 +20,8 @@ import { useSnackbar } from "./Helpers/SnackbarContext";
 import { getOrder } from "../services/Api";
 import Loading from "./Loading";
 import ItemDetails from "./ItemDetails";
+import CurrencyToggle from "./Helpers/CurrencyToggle";
+import { convertCurrency, getCurrencySymbol } from "./Helpers/staticFunctions";
 
 export default function Dashboard({ user }) {
   const navigate = useNavigate();
@@ -29,6 +31,7 @@ export default function Dashboard({ user }) {
   const [localDate, setLocalDate] = useState(new Date());
   const [orders, setOrders] = useState([]);
   const [isOpen, setIsOpen] = useState(false);
+  const [currency, setCurrency] = useState("INR");
   const [selectedOrder, setSelectedOrder] = useState(null);
 
   const agentData = user.selectedAgent
@@ -45,10 +48,6 @@ export default function Dashboard({ user }) {
     : null;
 
   useEffect(() => {
-    if (!user.addressDetails && !user.phoneNumber) {
-      navigate("/account");
-    }
-
     const fetchOrders = async () => {
       setIsLoading(true);
       try {
@@ -74,7 +73,7 @@ export default function Dashboard({ user }) {
     }, 60000);
 
     return () => clearInterval(intervalId);
-  }, [user, navigate]);
+  }, [user]);
 
   const getLength = (tab) => {
     return orders.filter((order) => {
@@ -132,9 +131,13 @@ export default function Dashboard({ user }) {
             <td className="p-3">{item.agent.address.zipCode}</td>
             <td className="p-3">{`${item.agent.firstName} ${item.agent.lastName}`}</td>
             <td className="p-3">{item.deliveredDate}</td>
-            <td className="p-3">{item.itemsCost}</td>
-            <td className="p-3">{item.shippingCost}</td>
-            <td className="p-3">{item.packageWeight}</td>
+            <td className="p-3">{`${getCurrencySymbol(
+              currency
+            )} ${convertCurrency(currency, item.itemsCost)}`}</td>
+            <td className="p-3">{`${getCurrencySymbol(
+              currency
+            )} ${convertCurrency(currency, item.shippingCost)}`}</td>
+            <td className="p-3">{item.packageWeight} KG(s)</td>
           </>
         );
       case CUSTOMER_STATUS.SHIPPED:
@@ -143,9 +146,13 @@ export default function Dashboard({ user }) {
             <td className="p-3">{item._id}</td>
             <td className="p-3">{item.agent.address.zipCode}</td>
             <td className="p-3">{`${item.agent.firstName} ${item.agent.lastName}`}</td>
-            <td className="p-3">{item.itemsCost}</td>
-            <td className="p-3">{item.shippingCost}</td>
-            <td className="p-3">{item.packageWeight}</td>
+            <td className="p-3">{`${getCurrencySymbol(
+              currency
+            )} ${convertCurrency(currency, item.itemsCost)}`}</td>
+            <td className="p-3">{`${getCurrencySymbol(
+              currency
+            )} ${convertCurrency(currency, item.shippingCost)}`}</td>
+            <td className="p-3">{item.packageWeight} KG(s)</td>
           </>
         );
       default:
@@ -304,7 +311,7 @@ export default function Dashboard({ user }) {
             <div className="mb-6 p-6 bg-white rounded-lg shadow-md border border-orange-200">
               <div className="flex flex-col justify-center items-center">
                 <h2 className="text-xl mb-4">
-                  Find an Agent at zip code:{" "}
+                  Find an agent at zip code:{" "}
                   <span className="text-orange-800">{user.zipCode}</span>
                 </h2>
                 <Button
@@ -318,20 +325,26 @@ export default function Dashboard({ user }) {
           )}
 
           <div className="p-6 bg-white rounded-lg shadow-md border border-orange-200">
-            <div className="flex space-x-4 mb-4">
-              {[CUSTOMER_STATUS.DELIVERED, CUSTOMER_STATUS.SHIPPED].map(
-                (tab) => (
-                  <Button
-                    key={tab}
-                    customStyles={`${
-                      activeTab === tab ? COLORS.ORANGE_500 : COLORS.ORANGE_100
-                    }`}
-                    onClick={() => handleTabClick(tab)}
-                    text={`${tab} (${getLength(tab)})`}
-                  />
-                )
-              )}
+            <div className="flex justify-between items-center mb-4">
+              <div className="flex space-x-4">
+                {[CUSTOMER_STATUS.DELIVERED, CUSTOMER_STATUS.SHIPPED].map(
+                  (tab) => (
+                    <Button
+                      key={tab}
+                      customStyles={`${
+                        activeTab === tab
+                          ? COLORS.ORANGE_500
+                          : COLORS.ORANGE_100
+                      }`}
+                      onClick={() => handleTabClick(tab)}
+                      text={`${tab} (${getLength(tab)})`}
+                    />
+                  )
+                )}
+              </div>
+              <CurrencyToggle currency={currency} setCurrency={setCurrency} />
             </div>
+
             <div className="overflow-x-auto">
               {orders.filter((order) => {
                 if (order.customerStatus === CUSTOMER_STATUS.IN_PROGRESS) {

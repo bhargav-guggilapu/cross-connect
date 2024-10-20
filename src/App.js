@@ -39,7 +39,7 @@ export default function App() {
         setUser(null);
         setLoading(false);
       }
-      
+
       fetchExchangeRate();
     });
 
@@ -60,28 +60,32 @@ export default function App() {
               <Sidebar user={user} setUser={setUser} />
               <div className="flex-1 overflow-auto">
                 <Routes>
-                  <Route
-                    path="/dashboard"
-                    element={<Dashboard user={user} setUser={setUser} />}
-                  />
-                  <Route
-                    path="/agent"
-                    element={<Agent user={user} setUser={setUser} />}
-                  />
-                  {user.selectedAgent && (
-                    <Route
-                      path="/draft"
-                      element={<Draft user={user} setUser={setUser} />}
-                    />
+                  {user.address && user.phoneNumber && (
+                    <>
+                      <Route
+                        path="/dashboard"
+                        element={<Dashboard user={user} setUser={setUser} />}
+                      />
+                      <Route
+                        path="/agent"
+                        element={<Agent user={user} setUser={setUser} />}
+                      />
+                      {user.selectedAgent && (
+                        <Route
+                          path="/draft"
+                          element={<Draft user={user} setUser={setUser} />}
+                        />
+                      )}
+                      <Route
+                        path="/in-progress"
+                        element={<InProgress user={user} setUser={setUser} />}
+                      />
+                      <Route
+                        path="/delivered"
+                        element={<Delivered user={user} setUser={setUser} />}
+                      />
+                    </>
                   )}
-                  <Route
-                    path="/in-progress"
-                    element={<InProgress user={user} setUser={setUser} />}
-                  />
-                  <Route
-                    path="/delivered"
-                    element={<Delivered user={user} setUser={setUser} />}
-                  />
                   <Route
                     path="/prohibited-items"
                     element={<ProhibitedItems user={user} setUser={setUser} />}
@@ -92,7 +96,16 @@ export default function App() {
                   />
                   <Route
                     path="*"
-                    element={<Navigate to="/dashboard" replace />}
+                    element={
+                      <Navigate
+                        to={
+                          user.address && user.phoneNumber
+                            ? "/dashboard"
+                            : "/account"
+                        }
+                        replace
+                      />
+                    }
                   />
                 </Routes>
               </div>

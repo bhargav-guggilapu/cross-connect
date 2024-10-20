@@ -77,7 +77,7 @@ export default function Delivered({ user }) {
             <tbody>
               {deliveries.map((item, index) => (
                 <tr
-                  key={item.id}
+                  key={item._id}
                   className={index % 2 === 0 ? "bg-orange-100" : ""}
                 >
                   <td className="p-3">{item._id}</td>

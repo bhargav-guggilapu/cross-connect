@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import Button from "./Helpers/Button";
 import {
   AGENT_STATUS,
+  ALERTS,
   COLORS,
   IN_PROGRESS_STATUS,
 } from "./Constants/Constants";
@@ -9,13 +10,18 @@ import { Chat, CheckCircle, Inventory } from "@mui/icons-material";
 import ItemDetails from "./ItemDetails";
 import { getOrdersByAgent, updateOrder } from "../services/Api";
 import Loading from "./Loading";
+import { useSnackbar } from "./Helpers/SnackbarContext";
+import CurrencyToggle from "./Helpers/CurrencyToggle";
+import { convertCurrency, getCurrencySymbol } from "./Helpers/staticFunctions";
 
 function AgentDashboard({ user }) {
+  const showSnackbar = useSnackbar();
   const [isLoading, setIsLoading] = useState(false);
   const [activeTab, setActiveTab] = useState(AGENT_STATUS.ORDERED);
   const [isOpen, setIsOpen] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [orders, setOrders] = useState([]);
+  const [currency, setCurrency] = useState("INR");
 
   useEffect(() => {
     const fetchOrdersAsync = async () => {
@@ -59,6 +65,31 @@ function AgentDashboard({ user }) {
   };
 
   const handleConfirm = async (order) => {
+    if (activeTab === AGENT_STATUS.CONFIRMED) {
+      if (!order.shippingCost || !order.packageWeight) {
+        showSnackbar(
+          "Please fill in the shipping cost and package weight.",
+          ALERTS.ERROR
+        );
+        return;
+      }
+
+      if (order.shippingCost < 0 || order.packageWeight < 0) {
+        showSnackbar(
+          "Shipping cost and Package weight should be greater than 0",
+          ALERTS.ERROR
+        );
+        return;
+      }
+    }
+
+    if (activeTab === AGENT_STATUS.SHIPPED) {
+      if (!order.trackingId) {
+        showSnackbar("Please fill in the tracking ID.", ALERTS.ERROR);
+        return;
+      }
+    }
+
     setIsLoading(true);
 
     await updateOrder(
@@ -120,7 +151,12 @@ function AgentDashboard({ user }) {
           <>
             <td className="p-3">{item._id}</td>
             <td className="p-3">{`${item.customer.firstName} ${item.customer.lastName}`}</td>
-            <td className="p-3">₹ {item.itemsCost}</td>
+            <td className="p-3">
+              {`${getCurrencySymbol(currency)} ${convertCurrency(
+                currency,
+                item.itemsCost
+              )}`}
+            </td>
             <td className="p-3">
               {item.inProgressStatus !==
               IN_PROGRESS_STATUS.SHIPPING_ESTIMATE ? (
@@ -144,7 +180,10 @@ function AgentDashboard({ user }) {
                   />
                 </div>
               ) : (
-                `₹ ${item.shippingCost}`
+                `${getCurrencySymbol(currency)} ${convertCurrency(
+                  currency,
+                  item.shippingCost
+                )}`
               )}
             </td>
             <td className="p-3">
@@ -171,7 +210,7 @@ function AgentDashboard({ user }) {
                   </span>
                 </div>
               ) : (
-                `₹ ${item.packageWeight}`
+                `${item.packageWeight} KG(s)`
               )}
             </td>
           </>
@@ -181,9 +220,19 @@ function AgentDashboard({ user }) {
           <>
             <td className="p-3">{item._id}</td>
             <td className="p-3">{`${item.customer.firstName} ${item.customer.lastName}`}</td>
-            <td className="p-3">₹ {item.itemsCost}</td>
-            <td className="p-3">₹ {item.shippingCost}</td>
-            <td className="p-3">{item.packageWeight} KG</td>
+            <td className="p-3">
+              {`${getCurrencySymbol(currency)} ${convertCurrency(
+                currency,
+                item.itemsCost
+              )}`}
+            </td>
+            <td className="p-3">
+              {`${getCurrencySymbol(currency)} ${convertCurrency(
+                currency,
+                item.shippingCost
+              )}`}
+            </td>
+            <td className="p-3">{item.packageWeight} KG(s)</td>
             <td className="p-3">
               {item.inProgressStatus !== IN_PROGRESS_STATUS.SHIPPED ? (
                 <input
@@ -207,9 +256,13 @@ function AgentDashboard({ user }) {
           <>
             <td className="p-3">{item._id}</td>
             <td className="p-3">{`${item.customer.firstName} ${item.customer.lastName}`}</td>
-            <td className="p-3">₹ {item.itemsCost}</td>
-            <td className="p-3">₹ {item.shippingCost}</td>
-            <td className="p-3">{item.packageWeight} KG</td>
+            <td className="p-3">{`${getCurrencySymbol(
+              currency
+            )} ${convertCurrency(currency, item.itemsCost)}`}</td>
+            <td className="p-3">{`${getCurrencySymbol(
+              currency
+            )} ${convertCurrency(currency, item.shippingCost)}`}</td>
+            <td className="p-3">{item.packageWeight} KG(s)</td>
             <td className="p-3">{item.trackingId}</td>
           </>
         );
@@ -232,23 +285,27 @@ function AgentDashboard({ user }) {
 
   return (
     <div className="p-6 bg-white rounded-lg shadow-md border border-orange-200">
-      <div className="flex space-x-4 mb-4">
-        {[
-          AGENT_STATUS.ORDERED,
-          AGENT_STATUS.CONFIRMED,
-          AGENT_STATUS.SHIPPED,
-          AGENT_STATUS.COMPLETED,
-        ].map((tab) => (
-          <Button
-            key={tab}
-            customStyles={`${
-              activeTab === tab ? COLORS.ORANGE_500 : COLORS.ORANGE_100
-            }`}
-            onClick={() => handleTabClick(tab)}
-            text={`${tab} (${getLength(tab)})`}
-          />
-        ))}
+      <div className="flex justify-between items-center mb-4">
+        <div className="flex space-x-4">
+          {[
+            AGENT_STATUS.ORDERED,
+            AGENT_STATUS.CONFIRMED,
+            AGENT_STATUS.SHIPPED,
+            AGENT_STATUS.COMPLETED,
+          ].map((tab) => (
+            <Button
+              key={tab}
+              customStyles={`${
+                activeTab === tab ? COLORS.ORANGE_500 : COLORS.ORANGE_100
+              }`}
+              onClick={() => handleTabClick(tab)}
+              text={`${tab} (${getLength(tab)})`}
+            />
+          ))}
+        </div>
+        <CurrencyToggle currency={currency} setCurrency={setCurrency} />
       </div>
+
       <div className="overflow-x-auto">
         {orders.filter((order) => order.agentStatus === activeTab).length >
         0 ? (

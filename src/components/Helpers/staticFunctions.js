@@ -65,3 +65,7 @@ export const getCurrentDate = () => {
 
   return `${mm}-${dd}-${yyyy}`;
 };
+
+export const getProfitAmount = (amount) => {
+  return (amount * 1.1).toFixed(2);
+}

@@ -8,6 +8,8 @@ import {
 } from "@mui/icons-material";
 import { updateUser } from "../services/Api";
 import Loading from "./Loading";
+import { getAuth, reauthenticateWithCredential, EmailAuthProvider, updatePassword } from "firebase/auth";
+
 
 export default function AccountPage({ user, setUser }) {
   const [isLoading, setIsLoading] = useState(false);
@@ -121,7 +123,7 @@ export default function AccountPage({ user, setUser }) {
     }
   };
 
-  const handlePasswordSubmit = (e) => {
+  const handlePasswordSubmit = async (e) => {
     e.preventDefault();
 
     if (!passwords.current.trim()) {
@@ -142,15 +144,34 @@ export default function AccountPage({ user, setUser }) {
       }));
       return;
     }
-
+    if (passwords.new.length < 8) {
+      setErrors((prev) => ({...prev, new: "New password must be at least 8 characters." }));
+      return;
+    }
     if (passwords.new !== passwords.confirm) {
       setErrorMessage("New password and confirm password do not match.");
       return;
     }
 
-    setShowPasswordChange(false);
-    setPasswords({ current: "", new: "", confirm: "" });
-    setErrorMessage("");
+    try {
+      const auth = getAuth();
+      const user = auth.currentUser;
+
+      const credential = EmailAuthProvider.credential(
+        user.email,
+        passwords.current
+      );
+
+      await reauthenticateWithCredential(user, credential);
+      await updatePassword(user, passwords.new);
+
+      setShowPasswordChange(false);
+      setPasswords({ current: "", new: "", confirm: "" });
+      setErrorMessage("");
+    } catch (error) {
+      console.error("Error updating password: ", error);
+      setErrorMessage(error.message);
+    }
   };
 
   const toggleEditing = () => {

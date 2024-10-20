@@ -20,12 +20,14 @@ import {
 } from "./Helpers/staticFunctions";
 import { useNavigate } from "react-router-dom";
 import CurrencyToggle from "./Helpers/CurrencyToggle";
+import TipDialog from "./TipDialog";
 
 export default function InProgress({ user }) {
   const navigate = useNavigate();
 
   const [isLoading, setIsLoading] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
+  const [isTipOpen, setIsTipOpen] = useState(false);
   const [orders, setOrders] = useState(null);
   const [currency, setCurrency] = useState("INR");
 
@@ -96,21 +98,27 @@ export default function InProgress({ user }) {
     setIsLoading(false);
   };
 
-  const onDeliveryConfirm = async (item) => {
+  const onTipConfirm = async (id, tipAmount) => {
     setIsLoading(true);
 
     await updateOrder(
       {
+        tipAmount,
         agentStatus: AGENT_STATUS.COMPLETED,
         inProgressStatus: "",
         customerStatus: CUSTOMER_STATUS.DELIVERED,
         deliveredDate: getCurrentDate(),
       },
-      { _id: item._id }
+      { _id: id }
     );
 
     setIsLoading(false);
     navigate("/delivered");
+  };
+
+  const onDeliveryConfirm = async (item) => {
+    setSelectedOrder(item);
+    setIsTipOpen(true);
   };
 
   const onTrackingHandle = (trackingId) => {
@@ -144,15 +152,21 @@ export default function InProgress({ user }) {
             className="mb-6 p-6 bg-white rounded-lg shadow-md border border-orange-200"
           >
             <div className="flex flex-row items-center justify-between mb-4">
-              <h3
-                className="text-xl font-bold text-orange-800"
-                style={{ fontFamily: "Rajdhani, sans-serif" }}
-              >
-                Order ID:{" "}
-                <span className="text-center text-gray-600 font-semibold">
-                  {item._id}
-                </span>
-              </h3>
+              <div className="flex space-x-4">
+                <p>
+                  Order Id:{" "}
+                  <span className="bg-orange-500 font-bold text-white px-3 py-1 rounded-full text-sm mr-5">
+                    {item._id}
+                  </span>
+                </p>
+                <p>
+                  Zip Code:{" "}
+                  <span className="bg-orange-500 font-bold text-white px-3 py-1 rounded-full text-sm">
+                    {item.agent.address.zipCode}
+                  </span>
+                </p>
+              </div>
+
               <div className="space-x-4 flex items-center">
                 <Button
                   icon={Inventory}
@@ -284,6 +298,12 @@ export default function InProgress({ user }) {
         selectedOrder={selectedOrder}
         setIsOpen={setIsOpen}
         title="In Progress"
+      />
+      <TipDialog
+        isTipOpen={isTipOpen}
+        setIsTipOpen={setIsTipOpen}
+        selectedOrder={selectedOrder}
+        onTipConfirm={onTipConfirm}
       />
     </div>
   );

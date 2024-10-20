@@ -31,9 +31,13 @@ export default function Sidebar({ user }) {
   const menuItems =
     user.role === ROLES.AGENT
       ? agentMenuItems
-      : user.selectedAgent
-      ? customerMenuItems
-      : customerMenuItems.filter((item) => item.name !== "Draft");
+      : user.address && user.phoneNumber
+      ? user.selectedAgent
+        ? customerMenuItems
+        : customerMenuItems.filter((item) => !["Draft"].includes(item.name))
+      : customerMenuItems.filter((item) =>
+          ["Account", "Prohibited Items"].includes(item.name)
+        );
 
   return (
     <div className="w-64 bg-white shadow-md overflow-y-auto">
