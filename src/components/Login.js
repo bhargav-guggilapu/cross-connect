@@ -146,29 +146,22 @@ export default function LoginPage({ setUser }) {
     <div className="flex h-screen">
       <div className="hidden lg:flex lg:w-1/2  items-center justify-center relative">
         <div
-          className="absolute inset-0 bg-cover bg-center"
+          className="absolute inset-0 bg-contain bg-center"
           style={{
             backgroundImage: `url(${logo})`,
             filter: "brightness(0.5)",
           }}
         ></div>
-        <div className="text-white text-center relative p-8 z-10">
-          <h1 className="text-4xl font-bold mb-4 text-orange-100">
-            Welcome to CrossConnect
-          </h1>
-          <p className="text-lg text-gray-100 mx-auto leading-relaxed">
-            Streamline your customs process with our innovative platform. <br />
-            Connect agents and customers seamlessly for efficient border
-            crossings.
-          </p>
-        </div>
       </div>
 
       <div className="w-full lg:w-1/2 flex flex-col">
-        <div className="flex-grow flex items-center justify-center p-6">
+        <div className="flex-grow flex items-center justify-center p-6 flex-col">
           <div className="max-w-md w-full bg-white rounded-lg shadow-md border border-orange-200 p-8">
-            <h1 className="text-3xl font-bold mb-6 text-center text-orange-800 font-rajdhani">
-              {isLogin ? "Sign In" : "Sign Up"}
+            <h1
+              className="text-3xl font-bold mb-6 text-center text-orange-800"
+              style={{ fontFamily: "Rajdhani, sans-serif" }}
+            >
+              CrossConnect
             </h1>
             <form onSubmit={handleSubmit} className="space-y-4">
               {!isLogin && (
@@ -437,7 +430,9 @@ export default function LoginPage({ setUser }) {
                 </button>
               </div>
             </form>
-            <p className="mt-4 text-center text-sm">
+          </div>
+          <div className="max-w-md w-full bg-white rounded-lg shadow-md border border-orange-200 pr-8 pl-8 pt-4 pb-4 mt-4">
+            <p className="text-center text-sm">
               {isLogin
                 ? "Don't have an account? "
                 : "Already have an account? "}
