@@ -13,6 +13,7 @@ import Loading from "./Loading";
 import { useSnackbar } from "./Helpers/SnackbarContext";
 import CurrencyToggle from "./Helpers/CurrencyToggle";
 import { convertCurrency, getCurrencySymbol } from "./Helpers/staticFunctions";
+import ChatModal from "./ChatModel";
 
 function AgentDashboard({ user }) {
   const showSnackbar = useSnackbar();
@@ -22,6 +23,7 @@ function AgentDashboard({ user }) {
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [orders, setOrders] = useState([]);
   const [currency, setCurrency] = useState("INR");
+  const [isChatOpen, setIsChatOpen] = useState(false);
 
   useEffect(() => {
     const fetchOrdersAsync = async () => {
@@ -121,6 +123,15 @@ function AgentDashboard({ user }) {
           "",
         ];
       case AGENT_STATUS.SHIPPED:
+        return [
+          "Order ID",
+          "Customer Name",
+          "Items Cost",
+          "Shipping Cost",
+          "Weight",
+          "Tracking ID",
+          "",
+        ];
       case AGENT_STATUS.COMPLETED:
         return [
           "Order ID",
@@ -129,6 +140,7 @@ function AgentDashboard({ user }) {
           "Shipping Cost",
           "Weight",
           "Tracking ID",
+          "Revenue",
           "",
         ];
       default:
@@ -264,6 +276,12 @@ function AgentDashboard({ user }) {
             )} ${convertCurrency(currency, item.shippingCost)}`}</td>
             <td className="p-3">{item.packageWeight} KG(s)</td>
             <td className="p-3">{item.trackingId}</td>
+            <td className="p-3">
+              {`${getCurrencySymbol(currency)} ${convertCurrency(
+                currency,
+                item.itemsCost * 0.05 + (item.tipAmount || 0)
+              )}`}
+            </td>
           </>
         );
       default:
@@ -349,12 +367,17 @@ function AgentDashboard({ user }) {
                           onClick={() => openDialog(item)}
                           text="Items"
                         />
-                        <Button
-                          icon={Chat}
-                          bgColor={COLORS.GREEN_600}
-                          // onClick={handleChangeAgent}
-                          text="Chat"
-                        />
+                        {item.agentStatus !== AGENT_STATUS.COMPLETED && (
+                          <Button
+                            icon={Chat}
+                            bgColor={COLORS.GREEN_600}
+                            onClick={() => {
+                              setSelectedOrder(item);
+                              setIsChatOpen(true);
+                            }}
+                            text="Chat"
+                          />
+                        )}
                       </div>
                     </td>
                   </tr>
@@ -376,6 +399,15 @@ function AgentDashboard({ user }) {
         enableUpdate={activeTab === AGENT_STATUS.ORDERED}
         fetchOrders={fetchOrders}
       />
+      {isChatOpen && (
+        <ChatModal
+          receiverDetails={selectedOrder.customer}
+          isAgent={true}
+          senderId={user._id}
+          isOpen={isChatOpen}
+          setIsOpen={setIsChatOpen}
+        />
+      )}
     </div>
   );
 }

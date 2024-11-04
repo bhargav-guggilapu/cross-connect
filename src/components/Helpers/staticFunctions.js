@@ -44,7 +44,7 @@ export const fetchExchangeRate = () => {
     .then((result) => {
       sessionStorage.setItem("exchangeRate", result.rates["INR"]);
     })
-    .catch((error) => console.log("error", error));
+    .catch((error) => console.error("error", error));
 };
 
 export const convertCurrency = (currency, amount) => {

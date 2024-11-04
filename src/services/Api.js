@@ -21,6 +21,12 @@ export const updateUser = async (userData) => {
   );
 };
 
+export const updateAgentDeliveries = async (id) => {
+  return await apiClient.get(
+    `${API_ENDPOINTS.USERS}/updateDeliveries?id=${id}`
+  );
+};
+
 export const getUserByEmail = async (email) => {
   return await apiClient.get(
     `${API_ENDPOINTS.USERS}/getByEmail?email=${email}`
@@ -57,4 +63,12 @@ export const getOrdersByAgent = async (agent) => {
   return await apiClient.get(
     `${API_ENDPOINTS.ORDERS}/getOrdersByAgent?agent=${agent}`
   );
+};
+
+export const getClientSecret = async (orderId, tipAmount) => {
+  return await apiClient.post(`/create-payment-intent`, { orderId, tipAmount });
+};
+
+export const cancelPayment = async (id) => {
+  return await apiClient.post(`/cancel-payment-intent`, { id });
 };

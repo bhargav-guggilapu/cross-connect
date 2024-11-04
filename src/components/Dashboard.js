@@ -22,6 +22,7 @@ import Loading from "./Loading";
 import ItemDetails from "./ItemDetails";
 import CurrencyToggle from "./Helpers/CurrencyToggle";
 import { convertCurrency, getCurrencySymbol } from "./Helpers/staticFunctions";
+import ChatModal from "./ChatModel";
 
 export default function Dashboard({ user }) {
   const navigate = useNavigate();
@@ -33,6 +34,7 @@ export default function Dashboard({ user }) {
   const [isOpen, setIsOpen] = useState(false);
   const [currency, setCurrency] = useState("INR");
   const [selectedOrder, setSelectedOrder] = useState(null);
+  const [isChatOpen, setIsChatOpen] = useState(false);
 
   const agentData = user.selectedAgent
     ? {
@@ -220,7 +222,7 @@ export default function Dashboard({ user }) {
                   <Button
                     icon={Chat}
                     bgColor={COLORS.GREEN_600}
-                    // onClick={handleChangeAgent}
+                    onClick={() => setIsChatOpen(true)}
                     text="Chat"
                   />
                 </div>
@@ -424,6 +426,15 @@ export default function Dashboard({ user }) {
         selectedOrder={selectedOrder}
         setIsOpen={setIsOpen}
       />
+      {isChatOpen && (
+        <ChatModal
+          receiverDetails={user.selectedAgent}
+          senderId={user._id}
+          isAgent={false}
+          isOpen={isChatOpen}
+          setIsOpen={setIsChatOpen}
+        />
+      )}
     </div>
   );
 }

@@ -5,6 +5,7 @@ import Button from "./Helpers/Button";
 import { COLORS } from "./Constants/Constants";
 import { getAgentsByZipCode, updateUser } from "../services/Api";
 import Loading from "./Loading";
+import ChatModal from "./ChatModel";
 
 const formatAgentDetails = (givenUser) => {
   return {
@@ -28,6 +29,7 @@ const formatAgentDetails = (givenUser) => {
 
 export default function Agent({ user, setUser }) {
   const [loading, setLoading] = useState(false);
+  const [isChatOpen, setIsChatOpen] = useState(false);
   const [selectedAgent, setSelectedAgent] = useState(
     user.selectedAgent ? formatAgentDetails(user.selectedAgent) : null
   );
@@ -90,7 +92,7 @@ export default function Agent({ user, setUser }) {
 
   if (selectedAgent) {
     return (
-      <div className="container mx-auto py-8 px-4 ">
+      <div className="container mx-auto p-6 ">
         <div className="p-6 bg-white  rounded-lg shadow-md border border-orange-200">
           <div className="flex justify-between items-center mb-6">
             <h1
@@ -103,7 +105,7 @@ export default function Agent({ user, setUser }) {
               <Button
                 icon={Chat}
                 bgColor={COLORS.GREEN_600}
-                // onClick={handleChangeAgent}
+                onClick={() => setIsChatOpen(true)}
                 text="Chat"
               />
               <Button
@@ -138,7 +140,7 @@ export default function Agent({ user, setUser }) {
             <div className="flex flex-col items-center justify-center">
               <Avatar
                 sx={{ height: "250px", width: "250px" }}
-                src={selectedAgent.photo}
+                src={selectedAgent.photo || "NO IMAGE"}
                 alt={selectedAgent.name}
                 className="w-64 h-64 mb-6 rounded-full border-2 border-orange-300"
               />
@@ -163,6 +165,15 @@ export default function Agent({ user, setUser }) {
             </div>
           </div>
         </div>
+        {isChatOpen && (
+          <ChatModal
+            receiverDetails={user.selectedAgent}
+            senderId={user._id}
+            isAgent={false}
+            isOpen={isChatOpen}
+            setIsOpen={setIsChatOpen}
+          />
+        )}
       </div>
     );
   }
@@ -185,7 +196,7 @@ export default function Agent({ user, setUser }) {
               <div className="flex items-center space-x-4">
                 <Avatar
                   alt={agent.name}
-                  src={agent.photo}
+                  src={agent.photo || "NO IMAGE"}
                   className="w-10 h-10 rounded-full border-2 border-white"
                 />
                 <div>

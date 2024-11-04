@@ -48,7 +48,7 @@ export default function Draft({ user }) {
         });
 
         if (order.data.length === 1) {
-          setOrder(order.data[0]);
+          setOrder(order?.data[0]);
         }
       } catch (error) {
         console.error("Error fetching order:", error);

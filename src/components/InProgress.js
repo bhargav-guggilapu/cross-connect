@@ -10,7 +10,7 @@ import {
 } from "./Constants/Constants";
 import ItemDetails from "./ItemDetails";
 import ProgressIndicator from "./ProgressIndicator";
-import { getOrder, updateOrder } from "../services/Api";
+import { getOrder, updateAgentDeliveries, updateOrder } from "../services/Api";
 import Loading from "./Loading";
 import {
   convertCurrency,
@@ -21,6 +21,7 @@ import {
 import { useNavigate } from "react-router-dom";
 import CurrencyToggle from "./Helpers/CurrencyToggle";
 import TipDialog from "./TipDialog";
+import PaymentModel from "./PaymentModel";
 
 export default function InProgress({ user }) {
   const navigate = useNavigate();
@@ -28,6 +29,7 @@ export default function InProgress({ user }) {
   const [isLoading, setIsLoading] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
   const [isTipOpen, setIsTipOpen] = useState(false);
+  const [isPayOpen, setIsPayOpen] = useState(false);
   const [orders, setOrders] = useState(null);
   const [currency, setCurrency] = useState("INR");
 
@@ -52,21 +54,14 @@ export default function InProgress({ user }) {
     fetchOrders();
   }, [user]);
 
-  const openDialog = (order) => {
-    setSelectedOrder(order);
-    setIsOpen(true);
-  };
-
   const startPlacingOrder = () => {
     navigate(`/draft`);
   };
 
   const fetchOrders = async () => {
-    setIsLoading(true);
     try {
       const order = await getOrder({
         customer: user._id,
-        agent: user.selectedAgent._id,
         customerStatus: CUSTOMER_STATUS.IN_PROGRESS,
         orderStatus: ORDER_STATUS.ACTIVE,
       });
@@ -74,11 +69,12 @@ export default function InProgress({ user }) {
     } catch (error) {
       console.error("Error fetching order:", error);
     }
-    setIsLoading(false);
   };
 
-  const onPaymentHandle = async (item) => {
+  const onSuccessPayment = async (item) => {
     setIsLoading(true);
+    setIsPayOpen(false);
+    setSelectedOrder(null);
 
     await updateOrder(
       {
@@ -112,13 +108,36 @@ export default function InProgress({ user }) {
       { _id: id }
     );
 
+    await updateAgentDeliveries(selectedOrder.agent._id);
+
     setIsLoading(false);
     navigate("/delivered");
   };
 
-  const onDeliveryConfirm = async (item) => {
-    setSelectedOrder(item);
-    setIsTipOpen(true);
+  const getPaymentItemsList = () => {
+    if (selectedOrder.inProgressStatus === IN_PROGRESS_STATUS.COST_ESTIMATE) {
+      return [
+        {
+          label: "Items Cost",
+          amount: convertCurrency("USD", selectedOrder.itemsCost),
+        },
+        {
+          label: "Convenience Fee (10%)",
+          amount: convertCurrency("USD", selectedOrder.itemsCost * 0.1),
+        },
+      ];
+    }
+
+    if (
+      selectedOrder.inProgressStatus === IN_PROGRESS_STATUS.SHIPPING_ESTIMATE
+    ) {
+      return [
+        {
+          label: "Shipping Cost",
+          amount: convertCurrency("USD", selectedOrder.shippingCost),
+        },
+      ];
+    }
   };
 
   const onTrackingHandle = (trackingId) => {
@@ -171,7 +190,10 @@ export default function InProgress({ user }) {
                 <Button
                   icon={Inventory}
                   bgColor={COLORS.ORANGE_500}
-                  onClick={() => openDialog(item)}
+                  onClick={() => {
+                    setSelectedOrder(item);
+                    setIsOpen(true);
+                  }}
                   text="Items"
                 />
                 {[
@@ -182,7 +204,10 @@ export default function InProgress({ user }) {
                     <Button
                       icon={Payment}
                       bgColor={COLORS.GREEN_600}
-                      onClick={() => onPaymentHandle(item)}
+                      onClick={() => {
+                        setIsPayOpen(true);
+                        setSelectedOrder(item);
+                      }}
                       text="Pay Now"
                     />
                   </>
@@ -193,7 +218,10 @@ export default function InProgress({ user }) {
                   <Button
                     icon={DeliveryDining}
                     bgColor={COLORS.GREEN_600}
-                    onClick={() => onDeliveryConfirm(item)}
+                    onClick={() => {
+                      setSelectedOrder(item);
+                      setIsTipOpen(true);
+                    }}
                     text="Confirm Delivery"
                   />
                 )}
@@ -305,6 +333,18 @@ export default function InProgress({ user }) {
         selectedOrder={selectedOrder}
         onTipConfirm={onTipConfirm}
       />
+      {isPayOpen && (
+        <PaymentModel
+          isPayOpen={isPayOpen}
+          handleClose={() => {
+            setIsPayOpen(false);
+            setSelectedOrder(null);
+          }}
+          onSuccessPayment={() => onSuccessPayment(selectedOrder)}
+          orderId={selectedOrder._id}
+          paymentItemsList={getPaymentItemsList()}
+        />
+      )}
     </div>
   );
 }

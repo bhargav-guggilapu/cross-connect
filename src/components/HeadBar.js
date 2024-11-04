@@ -47,16 +47,24 @@ export default function HeadBar({ user, setUser }) {
   };
 
   const handleZipCodeInputChange = (e) => {
-    const value = e.target.value;
+    const value = e.target.value.slice(0, 6);
     setNewZipCode(value);
 
-    if (value.length !== 6) {
+    if (zipTouched && value.length !== 6) {
       setZipCodeError("Zip code must be exactly 6 characters.");
     } else {
       setZipCodeError("");
     }
+  };
 
+  const handleZipCodeBlur = () => {
     setZipTouched(true);
+
+    if (newZipCode.length !== 6) {
+      setZipCodeError("Zip code must be exactly 6 characters.");
+    } else {
+      setZipCodeError("");
+    }
   };
 
   const handleZipCodeChange = async () => {
@@ -145,11 +153,10 @@ export default function HeadBar({ user, setUser }) {
                     placeholder="Enter new zip code"
                     value={newZipCode}
                     onChange={handleZipCodeInputChange}
-                    className={`w-full p-2 border rounded focus:outline-none focus:ring-2 
-                bg-white focus:ring-orange-300
-                ${zipCodeError ? "border-red-500" : ""}
-                `}
-                    onBlur={() => setZipTouched(true)}
+                    className={`w-full p-2 border rounded focus:outline-none focus:ring-2 bg-white focus:ring-orange-300 ${
+                      zipCodeError ? "border-red-500" : ""
+                    }`}
+                    onBlur={handleZipCodeBlur}
                   />
                   {zipTouched && zipCodeError && (
                     <span className="text-red-500 text-sm mt-1">
@@ -178,7 +185,7 @@ export default function HeadBar({ user, setUser }) {
           </Link>
           <Avatar
             alt={user.firstName}
-            src={user.photo}
+            src={user.photo || "NO IMAGE"}
             className="w-10 h-10 rounded-full border-2 border-white cursor-pointer"
             onClick={handleAvatarClick}
           />
@@ -200,7 +207,11 @@ export default function HeadBar({ user, setUser }) {
             }}
           >
             <div className="flex items-center p-4">
-              <Avatar alt={user.firstName} src={user.photo} className="mr-2" />
+              <Avatar
+                alt={user.firstName}
+                src={user.photo || "NO IMAGE"}
+                className="mr-2"
+              />
               <div>
                 <p className="text-sm font-medium">{`${user.firstName} ${user.lastName}`}</p>
                 <p className="text-xs text-gray-500">{user.email}</p>

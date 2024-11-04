@@ -27,7 +27,7 @@ export default function App() {
         const fetchUserDetails = async () => {
           try {
             const userDetails = await getUserByEmail(fireBaseUser.email);
-            setUser(userDetails.data[0]);
+            setUser(userDetails?.data[0]);
           } catch (error) {
             console.error("Error fetching user details:", error);
           }
