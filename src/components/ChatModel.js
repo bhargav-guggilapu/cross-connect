@@ -5,7 +5,6 @@ import Button from "./Helpers/Button";
 import { COLORS } from "./Constants/Constants";
 import { io } from "socket.io-client";
 import moment from "moment";
-import { BACKEND_URL, BACKEND_URL_LOCAL } from "../services/EndPoints";
 
 export default function ChatModal({
   receiverDetails,
@@ -23,7 +22,7 @@ export default function ChatModal({
 
   useEffect(() => {
     if (isOpen && receiverDetails) {
-      socketRef.current = io(BACKEND_URL, {
+      socketRef.current = io(process.env.REACT_APP_BACKEND_URL, {
         query: { userId: senderId },
       });
 

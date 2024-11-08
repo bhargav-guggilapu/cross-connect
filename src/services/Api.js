@@ -1,9 +1,9 @@
 import axios from "axios";
 import queryString from "query-string";
-import { API_ENDPOINTS, BACKEND_URL, BACKEND_URL_LOCAL } from "./EndPoints";
+import { API_ENDPOINTS } from "./EndPoints";
 
 const apiClient = axios.create({
-  baseURL: BACKEND_URL,
+  baseURL: process.env.REACT_APP_BACKEND_URL,
   timeout: 10000,
   headers: {
     "Content-Type": "application/json",
