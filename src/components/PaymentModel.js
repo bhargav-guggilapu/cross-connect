@@ -174,7 +174,7 @@ export default function PaymentModel({
               {paymentItemsList.reduce(
                 (acc, item) => acc + Number(item.amount),
                 0
-              )}
+              ).toFixed(2)}
             </div>
             <div className="space-y-4">
               {paymentItemsList.map((item, index) => {

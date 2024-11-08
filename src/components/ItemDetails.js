@@ -18,7 +18,7 @@ import { CheckCircle, Close, AddShoppingCart, Edit } from "@mui/icons-material";
 import CurrencyToggle from "./Helpers/CurrencyToggle";
 import { convertCurrency, getCurrencySymbol } from "./Helpers/staticFunctions";
 import { useSnackbar } from "./Helpers/SnackbarContext";
-import { updateOrder } from "../services/Api";
+import { sendEmail, updateOrder } from "../services/Api";
 
 function ItemDetails({
   isOpen,
@@ -61,13 +61,41 @@ function ItemDetails({
     await updateOrder(
       {
         inProgressStatus: IN_PROGRESS_STATUS.COST_ESTIMATE,
-        itemsCost: order.items.reduce((sum, item) => sum + parseFloat(item.cost), 0),
+        itemsCost: order.items.reduce(
+          (sum, item) => sum + parseFloat(item.cost),
+          0
+        ),
       },
       { _id: order._id }
     );
 
-    setIsLoading(false);
     fetchOrders();
+
+    await sendEmail(
+      order.customer.email,
+      "Order Status Update",
+      `
+        <h3>Dear ${order.customer.firstName},</h3>
+        <p>We wanted to update you on your order's status:</p>
+        <p>Order ID: <strong>${order._id}</strong></p>
+        <p>Order Status: <strong>ITEMS COST ESTIMATED</strong></p>
+        <p>Items Cost: <strong>₹${order.itemsCost}</strong></p>
+        <p>Order Details:</p>
+        <ul>
+            ${order.items
+              .map(
+                (item) => `
+                <li><strong>${item.name}</strong>: ${item.quantity} ${item.unit}</li>
+            `
+              )
+              .join("")}
+        </ul>
+        <p>Please login to your account and pay now to proceed to next steps.</p>
+        <p>Thank you,<br>Cross Connect</p>
+    `
+    );
+
+    setIsLoading(false);
     handleClose();
   };
 

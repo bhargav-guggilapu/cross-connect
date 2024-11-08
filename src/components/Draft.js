@@ -12,7 +12,7 @@ import {
   ORDER_STATUS,
   UNITS,
 } from "./Constants/Constants";
-import { createOrder, getOrder, updateOrder } from "../services/Api";
+import { createOrder, getOrder, sendEmail, updateOrder } from "../services/Api";
 import Loading from "./Loading";
 import { formatQuantityUnit } from "./Helpers/staticFunctions";
 import { useNavigate } from "react-router-dom";
@@ -178,6 +178,35 @@ export default function Draft({ user }) {
         {
           _id: order._id,
         }
+      );
+
+      await sendEmail(
+        order.customer.email,
+        "Your Order Has Moved to In Progress",
+        `
+          <h3>Dear ${order.customer.firstName},</h3>
+          <p>We’re excited to let you know that your order: <b>${
+            order._id
+          }</b> has moved from <b>Draft</b> to <b>In Progress</b>! Below is a summary of the items in your order:</p>
+          <ul>${order.items
+            .map(
+              (item) => `
+                <li>
+                    <strong>${item.name}</strong>: ${item.quantity} ${item.unit}
+                    <br>
+                    Store Name: ${item.storeName || "No store provided"}
+                    <br>
+                    Description: ${
+                      item.description || "No description provided"
+                    }
+                </li>
+            `
+            )
+            .join("")}</ul>
+          <p>Our team is now working to fulfill your order, and we’ll keep you updated on the next steps.</p>
+          <p>Thank you for choosing us!</p>
+          <p>Thank you,<br>Cross Connect</p>
+      `
       );
 
       setIsLoading(false);

@@ -72,3 +72,7 @@ export const getClientSecret = async (orderId, tipAmount) => {
 export const cancelPayment = async (id) => {
   return await apiClient.post(`/cancel-payment-intent`, { id });
 };
+
+export const sendEmail = async (to, subject, html) => {
+  return await apiClient.post(`/send-email`, { to, subject, html });
+};
