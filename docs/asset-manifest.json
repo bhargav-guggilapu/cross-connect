@@ -1,14 +1,14 @@
 {
   "files": {
     "main.css": "/cross-connect/static/css/main.c831c16b.css",
-    "main.js": "/cross-connect/static/js/main.d58183cb.js",
+    "main.js": "/cross-connect/static/js/main.835830d5.js",
     "static/media/logo.jpg": "/cross-connect/static/media/logo.71c418af208c560d446c.jpg",
     "index.html": "/cross-connect/index.html",
     "main.c831c16b.css.map": "/cross-connect/static/css/main.c831c16b.css.map",
-    "main.d58183cb.js.map": "/cross-connect/static/js/main.d58183cb.js.map"
+    "main.835830d5.js.map": "/cross-connect/static/js/main.835830d5.js.map"
   },
   "entrypoints": [
     "static/css/main.c831c16b.css",
-    "static/js/main.d58183cb.js"
+    "static/js/main.835830d5.js"
   ]
 }
