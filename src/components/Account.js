@@ -6,10 +6,14 @@ import {
   Visibility,
   VisibilityOff,
 } from "@mui/icons-material";
-import { updateUser } from "../services/Api";
+import { sendEmail, updateUser } from "../services/Api";
 import Loading from "./Loading";
-import { getAuth, reauthenticateWithCredential, EmailAuthProvider, updatePassword } from "firebase/auth";
-
+import {
+  getAuth,
+  reauthenticateWithCredential,
+  EmailAuthProvider,
+  updatePassword,
+} from "firebase/auth";
 
 export default function AccountPage({ user, setUser }) {
   const [isLoading, setIsLoading] = useState(false);
@@ -118,6 +122,19 @@ export default function AccountPage({ user, setUser }) {
         },
       });
       setUser(updatedUser.data);
+
+      await sendEmail(
+        user.email,
+        "Your Information Has Been Successfully Updated",
+        `
+          <h3>Hello ${user.firstName},</h3>
+          <p>Your account information has been successfully updated.</p>
+          <p>If you did not request this update or have any concerns, please contact our support team immediately.</p>
+          <p>Thank you for keeping your information up to date!</p>
+          <p>Thank you,<br>Cross Connect</p>
+      `
+      );
+
       setIsEditing(false);
       setIsLoading(false);
     }
@@ -145,7 +162,10 @@ export default function AccountPage({ user, setUser }) {
       return;
     }
     if (passwords.new.length < 8) {
-      setErrors((prev) => ({...prev, new: "New password must be at least 8 characters." }));
+      setErrors((prev) => ({
+        ...prev,
+        new: "New password must be at least 8 characters.",
+      }));
       return;
     }
     if (passwords.new !== passwords.confirm) {
@@ -155,15 +175,27 @@ export default function AccountPage({ user, setUser }) {
 
     try {
       const auth = getAuth();
-      const user = auth.currentUser;
+      const userFireBase = auth.currentUser;
 
       const credential = EmailAuthProvider.credential(
-        user.email,
+        userFireBase.email,
         passwords.current
       );
 
-      await reauthenticateWithCredential(user, credential);
-      await updatePassword(user, passwords.new);
+      await reauthenticateWithCredential(userFireBase, credential);
+      await updatePassword(userFireBase, passwords.new);
+
+      await sendEmail(
+        user.email,
+        "Your Password Has Been Successfully Changed",
+        `
+          <h3>Hello ${user.firstName},</h3>
+          <p>Your password has been successfully changed.</p>
+          <p>If you did not request this change or have any concerns, please contact our support team immediately.</p>
+          <p>Thank you for keeping your password up to date!</p>
+          <p>Thank you,<br>Cross Connect</p>
+      `
+      );
 
       setShowPasswordChange(false);
       setPasswords({ current: "", new: "", confirm: "" });

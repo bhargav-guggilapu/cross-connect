@@ -8,7 +8,7 @@ import {
 } from "./Constants/Constants";
 import { Chat, CheckCircle, Inventory } from "@mui/icons-material";
 import ItemDetails from "./ItemDetails";
-import { getOrdersByAgent, updateOrder } from "../services/Api";
+import { getOrdersByAgent, sendEmail, updateOrder } from "../services/Api";
 import Loading from "./Loading";
 import { useSnackbar } from "./Helpers/SnackbarContext";
 import CurrencyToggle from "./Helpers/CurrencyToggle";
@@ -106,6 +106,38 @@ function AgentDashboard({ user }) {
     );
 
     fetchOrders();
+
+    await sendEmail(
+      order.customer.email,
+      "Order Status Update",
+      `
+        <h3>Dear ${order.customer.firstName},</h3>
+        <p>We wanted to update you on your order's status:</p>
+        <p>Order Status: <strong>${
+          order.inProgressStatus === IN_PROGRESS_STATUS.ORDER_SHIPPED
+            ? "SHIPPED ORDER"
+            : "ESTIMATING SHIPPING COST"
+        }</strong></p>
+        <p>Order Details:</p>
+        <ul>
+            ${order.items
+              .map(
+                (item) => `
+                <li><strong>${item.name}</strong>: ${item.quantity} ${item.unit}</li>
+            `
+              )
+              .join("")}
+        </ul>
+        
+        ${
+          order.inProgressStatus === IN_PROGRESS_STATUS.ORDER_SHIPPED
+            ? "<p>Thank you for your patience. We'll keep you updated as your order progresses.</p>"
+            : "<p>Please login to your account and pay now to proceed to next steps.</p>"
+        }
+        <p>Thank you,<br>Cross Connect</p>
+    `
+    );
+
     setIsLoading(false);
   };
 

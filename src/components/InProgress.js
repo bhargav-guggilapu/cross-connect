@@ -10,7 +10,12 @@ import {
 } from "./Constants/Constants";
 import ItemDetails from "./ItemDetails";
 import ProgressIndicator from "./ProgressIndicator";
-import { getOrder, updateAgentDeliveries, updateOrder } from "../services/Api";
+import {
+  getOrder,
+  sendEmail,
+  updateAgentDeliveries,
+  updateOrder,
+} from "../services/Api";
 import Loading from "./Loading";
 import {
   convertCurrency,
@@ -90,6 +95,33 @@ export default function InProgress({ user }) {
       { _id: item._id }
     );
     await fetchOrders();
+
+    await sendEmail(
+      item.customer.email,
+      "Payment Successful - Order Status Updated",
+      `
+        <h3>Dear ${item.customer.firstName},</h3>
+        <p>We're happy to let you know that your payment was successful!</p>
+        <p>Order ID: <strong>${item._id}</strong></p>
+        <p>Order Status: <strong>${
+          item.inProgressStatus === IN_PROGRESS_STATUS.COST_ESTIMATE
+            ? "GATHERING ITEMS"
+            : "SHIPPING ITEMS"
+        }</strong></p>
+        <p>Order Details:</p>
+        <ul>
+            ${item.items
+              .map(
+                (i) => `
+                <li><strong>${i.name}</strong>: ${i.quantity} ${i.unit}</li>
+            `
+              )
+              .join("")}
+        </ul>
+        <p>Thank you for your payment. We’ll keep you updated as your order progresses to the next stages.</p>
+        <p>Thank you,<br>Cross Connect</p>
+    `
+    );
 
     setIsLoading(false);
   };
