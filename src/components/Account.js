@@ -14,8 +14,11 @@ import {
   EmailAuthProvider,
   updatePassword,
 } from "firebase/auth";
+import { useNavigate } from "react-router-dom";
 
 export default function AccountPage({ user, setUser }) {
+  const navigate = useNavigate();
+
   const [isLoading, setIsLoading] = useState(false);
   const [userData, setUserData] = useState({
     personalInfo: {
@@ -134,6 +137,10 @@ export default function AccountPage({ user, setUser }) {
           <p>Thank you,<br>Cross Connect</p>
       `
       );
+
+      if (!user.address && !user.phoneNumber) {
+        navigate(`/dashboard`);
+      }
 
       setIsEditing(false);
       setIsLoading(false);

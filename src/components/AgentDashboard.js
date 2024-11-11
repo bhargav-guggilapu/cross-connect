@@ -6,7 +6,7 @@ import {
   COLORS,
   IN_PROGRESS_STATUS,
 } from "./Constants/Constants";
-import { Chat, CheckCircle, Inventory } from "@mui/icons-material";
+import { Chat, CheckCircle, Close, Inventory } from "@mui/icons-material";
 import ItemDetails from "./ItemDetails";
 import { getOrdersByAgent, sendEmail, updateOrder } from "../services/Api";
 import Loading from "./Loading";
@@ -14,6 +14,13 @@ import { useSnackbar } from "./Helpers/SnackbarContext";
 import CurrencyToggle from "./Helpers/CurrencyToggle";
 import { convertCurrency, getCurrencySymbol } from "./Helpers/staticFunctions";
 import ChatModal from "./ChatModel";
+import {
+  Avatar,
+  Dialog,
+  DialogContent,
+  DialogTitle,
+  IconButton,
+} from "@mui/material";
 
 function AgentDashboard({ user }) {
   const showSnackbar = useSnackbar();
@@ -24,6 +31,7 @@ function AgentDashboard({ user }) {
   const [orders, setOrders] = useState([]);
   const [currency, setCurrency] = useState("INR");
   const [isChatOpen, setIsChatOpen] = useState(false);
+  const [selectedCustomer, setSelectedCustomer] = useState(null);
 
   useEffect(() => {
     const fetchOrdersAsync = async () => {
@@ -141,6 +149,24 @@ function AgentDashboard({ user }) {
     setIsLoading(false);
   };
 
+  const formatAndUpdateCustomerDetails = (item) => {
+    setSelectedCustomer({
+      id: item.customer._id,
+      name: item.customer.firstName + " " + item.customer.lastName,
+      email: item.customer.email,
+      phone: item.customer.phoneNumber,
+      address: `${item.customer.address?.addressLine1} ${
+        item.customer.address?.addressLine2
+          ? ", " + item.customer.address?.addressLine2
+          : ""
+      }`,
+      city: item.customer.address?.city,
+      state: item.customer.address?.state,
+      zip: item.customer.address?.zipCode,
+      photo: item.customer.photo,
+    });
+  };
+
   const renderTableHeadersAgent = () => {
     switch (activeTab) {
       case AGENT_STATUS.ORDERED:
@@ -186,7 +212,10 @@ function AgentDashboard({ user }) {
         return (
           <>
             <td className="p-3">{item._id}</td>
-            <td className="p-3">{`${item.customer.firstName} ${item.customer.lastName}`}</td>
+            <td
+              className="p-3 cursor-pointer underline"
+              onClick={() => formatAndUpdateCustomerDetails(item)}
+            >{`${item.customer.firstName} ${item.customer.lastName}`}</td>
             <td className="p-3">{item.customer.email}</td>
           </>
         );
@@ -194,7 +223,10 @@ function AgentDashboard({ user }) {
         return (
           <>
             <td className="p-3">{item._id}</td>
-            <td className="p-3">{`${item.customer.firstName} ${item.customer.lastName}`}</td>
+            <td
+              className="p-3 cursor-pointer underline"
+              onClick={() => formatAndUpdateCustomerDetails(item)}
+            >{`${item.customer.firstName} ${item.customer.lastName}`}</td>
             <td className="p-3">
               {`${getCurrencySymbol(currency)} ${convertCurrency(
                 currency,
@@ -263,7 +295,10 @@ function AgentDashboard({ user }) {
         return (
           <>
             <td className="p-3">{item._id}</td>
-            <td className="p-3">{`${item.customer.firstName} ${item.customer.lastName}`}</td>
+            <td
+              className="p-3 cursor-pointer underline"
+              onClick={() => formatAndUpdateCustomerDetails(item)}
+            >{`${item.customer.firstName} ${item.customer.lastName}`}</td>
             <td className="p-3">
               {`${getCurrencySymbol(currency)} ${convertCurrency(
                 currency,
@@ -299,7 +334,10 @@ function AgentDashboard({ user }) {
         return (
           <>
             <td className="p-3">{item._id}</td>
-            <td className="p-3">{`${item.customer.firstName} ${item.customer.lastName}`}</td>
+            <td
+              className="p-3 cursor-pointer underline"
+              onClick={() => formatAndUpdateCustomerDetails(item)}
+            >{`${item.customer.firstName} ${item.customer.lastName}`}</td>
             <td className="p-3">{`${getCurrencySymbol(
               currency
             )} ${convertCurrency(currency, item.itemsCost)}`}</td>
@@ -439,6 +477,78 @@ function AgentDashboard({ user }) {
           isOpen={isChatOpen}
           setIsOpen={setIsChatOpen}
         />
+      )}
+      {selectedCustomer && (
+        <Dialog
+          open={!!selectedCustomer}
+          onClose={() => {
+            setSelectedCustomer(null);
+          }}
+          aria-labelledby={"customer-details"}
+          PaperProps={{
+            style: {
+              backgroundColor: "#fff8e1",
+              borderRadius: "1rem",
+              boxShadow: "0 8px 12px rgba(0, 0, 0, 0.2)",
+              maxWidth: "1000px",
+              width: "90%",
+            },
+          }}
+        >
+          <DialogTitle id={"customer_details_id"}>
+            <span
+              className="text-2xl font-bold text-orange-800 mb-4 mt-4"
+              style={{ fontFamily: "Rajdhani, sans-serif" }}
+            >
+              Customer Details
+            </span>
+            <IconButton
+              aria-label="close"
+              onClick={() => {
+                setSelectedCustomer(null);
+              }}
+              style={{ position: "absolute", right: 16, top: 10 }}
+            >
+              <Close />
+            </IconButton>
+          </DialogTitle>
+          <DialogContent>
+            <div className="container mx-auto p-6 ">
+              <div className="p-6 bg-white  rounded-lg shadow-md border border-orange-200">
+                <div className="grid md:grid-cols-2 gap-8">
+                  <div>
+                    {[
+                      "Name",
+                      "Email",
+                      "Phone",
+                      "Address",
+                      "City",
+                      "State",
+                      "ZIP",
+                    ].map((field) => (
+                      <div key={field} className="mb-4">
+                        <h3 className="text-lg font-semibold text-orange-700 font-rajdhani">
+                          {field}
+                        </h3>
+                        <p className="text-gray-700 font-poppins">
+                          {selectedCustomer[field.toLowerCase()]}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="flex flex-col items-center justify-center">
+                    <Avatar
+                      sx={{ height: "250px", width: "250px" }}
+                      src={selectedCustomer.photo || "NO IMAGE"}
+                      alt={selectedCustomer.name}
+                      className="w-64 h-64 mb-6 rounded-full border-2 border-orange-300"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
       )}
     </div>
   );
