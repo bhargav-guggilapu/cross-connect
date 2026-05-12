@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Route, Routes, Navigate } from "react-router-dom";
+import { Route, Routes, Navigate, useLocation } from "react-router-dom";
 import Sidebar from "./components/Sidebar";
 import Dashboard from "./components/Dashboard";
 import HeadBar from "./components/HeadBar";
@@ -17,7 +17,16 @@ import { getUserByEmail } from "./services/Api";
 import { SnackbarProvider } from "./components/Helpers/SnackbarContext";
 import { fetchExchangeRate } from "./components/Helpers/staticFunctions";
 
+function Healthz() {
+  return (
+    <pre style={{ margin: 0, padding: 16, fontFamily: "monospace" }}>
+      {JSON.stringify({ status: "ok" })}
+    </pre>
+  );
+}
+
 export default function App() {
+  const location = useLocation();
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -45,6 +54,10 @@ export default function App() {
 
     return () => unsubscribe();
   }, []);
+
+  if (location.pathname === "/healthz") {
+    return <Healthz />;
+  }
 
   if (loading) {
     return <Loading />;
